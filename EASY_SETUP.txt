@@ -1,0 +1,62 @@
+DANTECH CYBER SOLUTIONS - EASY SETUP
+
+WHAT YOU NEED
+1. A free Supabase account.
+2. The Dantech ZIP extracted on your computer.
+3. Internet connection for the online database.
+
+STEP 1 - CREATE YOUR DATABASE
+1. Go to https://supabase.com/
+2. Create an account and create a new project.
+3. Open SQL Editor.
+4. IMPORTANT: If you already have the Dantech database, skip supabase_schema.sql and run DANTECH_EXISTING_DB_UPGRADE.sql only.
+5. Copy all its contents into Supabase SQL Editor.
+6. Click RUN.
+
+STEP 2 - GET YOUR SUPABASE DETAILS
+In Supabase open Project Settings > API.
+Copy:
+- Project URL
+- Publishable/anon public key (use the public client key only).
+
+STEP 3 - CONNECT DANTECH
+1. Right-click index.html.
+2. Open with Notepad.
+3. Search for:
+   YOUR_SUPABASE_PROJECT_URL
+   YOUR_SUPABASE_ANON_KEY
+4. Replace them with your Supabase Project URL and public client key.
+5. Save index.html.
+
+STEP 4 - START DANTECH
+Double-click START_DANTECH.bat
+(or double-click index.html).
+
+STEP 5 - CREATE USERS
+Create your Admin and Staff users in Supabase Authentication.
+The first account can be configured as admin using the profile information described in SETUP.md.
+
+IMPORTANT
+- Do NOT put a Supabase service-role/secret key into index.html.
+- The system uses Supabase Row Level Security to keep Branch 1 and Branch 2 separate.
+- Staff can record sales and add new services/prices, but cannot edit products.
+- Discounts and M-Pesa references are included.
+- Password changes are available from My Account.
+
+BRANCHES
+The current package contains generic Branch 1 and Branch 2.
+Once you give me your actual branch names, I can prepare the package with those names.
+
+STOCK
+The package currently contains sample stock. Send me your actual stock list (Excel, CSV, photo, or typed list) and I can structure it for import.
+
+If you want, I can also upgrade this package next to include:
+- multi-item shopping cart
+- barcode scanning
+- customer/credit sales
+- returns and voids
+- daily cash-up
+- printable invoices
+- Excel/PDF reports
+- proper admin user management
+- automatic stock deduction through secure database transactions

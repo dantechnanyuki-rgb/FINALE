@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dantech Cyber Solutions | Online POS</title>
+<link rel="icon" href="assets/dantech-mark.svg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{--blue:#0879d1;--blue2:#0bc4ff;--dark:#071827;--red:#e53935;--bg:#f3f7fb;--card:#fff;--line:#e3eaf0;--text:#16222d;--muted:#6c7b88;--green:#16834a;--gold:#d98700}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}.login{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#061521,#0879d1 70%,#0bc4ff);padding:20px}
+.loginbox{width:min(430px,100%);background:#fff;border-radius:20px;padding:30px;box-shadow:0 25px 80px #0005}.brandcenter{text-align:center}.mark{width:62px;height:62px;margin:auto}.brandcenter h1{margin:10px 0 3px;font-size:27px}.brandcenter p{margin:0 0 22px;color:var(--muted)}
+.field{margin:12px 0}.field label{display:block;font-size:12px;font-weight:800;color:#526473;margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid #d5e0e8;border-radius:9px;background:#fff}
+.btn{border:0;background:var(--blue);color:#fff;padding:10px 14px;border-radius:9px;font-weight:800}.btn.red{background:var(--red)}.btn.dark{background:var(--dark)}.btn.light{background:#edf5fb;color:#075b99}.btn.green{background:var(--green)}
+.app{display:flex;min-height:100vh}.side{width:245px;position:fixed;inset:0 auto 0 0;background:linear-gradient(180deg,#061522,#0b293d);color:#fff;padding:18px 14px;z-index:5}.sidebrand{display:flex;gap:10px;align-items:center;padding:5px 8px 18px;border-bottom:1px solid #294052}.sidebrand img{width:45px}.sidebrand b{font-size:16px}.sidebrand small{display:block;color:#abc0cf;margin-top:3px}
+nav{margin-top:15px}nav button{display:block;width:100%;background:transparent;color:#dce8ef;border:0;text-align:left;padding:11px 12px;border-radius:9px;margin:3px 0}nav button:hover,nav button.active{background:#123b55;color:#fff}.adminItem{border-left:3px solid var(--red)}
+main{margin-left:245px;width:calc(100% - 245px);padding:20px}.top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:18px}.top h2{margin:0;font-size:23px}.userbox{color:var(--muted);font-size:13px}
+.page{display:none}.page.active{display:block}.grid{display:grid;gap:15px}.metrics{grid-template-columns:repeat(4,1fr)}.two{grid-template-columns:1.2fr .8fr}.three{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px;box-shadow:0 5px 22px #16334d0b}.card h3{margin:0 0 13px;font-size:17px}.label{font-size:11px;color:var(--muted);font-weight:800}.metric .value{font-size:27px;font-weight:900;margin-top:7px}.metric .hint{font-size:12px;color:var(--green);margin-top:6px}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.formgrid.three{grid-template-columns:repeat(3,1fr)}label{font-size:12px;font-weight:800;color:#566675;display:block;margin-bottom:5px}input,select{width:100%;padding:10px;border:1px solid #d5e0e8;border-radius:9px}input[type="search"]{border:2px solid #b8c8d5;font-weight:600}input[type="search"]:focus{outline:none;border-color:#1f6feb;box-shadow:0 0 0 3px #1f6feb18}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 7px;border-bottom:1px solid var(--line);font-size:13px;text-align:left}th{background:#f8fafc;color:#61717f}.tag{display:inline-block;border-radius:99px;padding:4px 8px;font-size:10px;font-weight:900}.tag.low{background:#fff0f0;color:#c02e2e}.tag.ok{background:#eaf8f0;color:#167647}.tag.admin{background:#eef5ff;color:#075b99}
+.chart{height:220px;display:flex;align-items:flex-end;gap:7px;border-bottom:1px solid #dfe6ec;padding:8px}.bar{flex:1;min-width:7px;background:linear-gradient(180deg,var(--blue2),var(--blue));border-radius:5px 5px 0 0}.alert{padding:10px;border-radius:9px;background:#fff0f0;color:#b82d2d;margin:6px 0}.notice{padding:11px;border-radius:9px;background:#edf7ff;color:#075b99}.receipt{max-width:390px;margin:18px auto;background:#fff;border:1px dashed #999;padding:20px}.receipt .line{display:flex;justify-content:space-between}
+.hero{min-height:180px;border-radius:16px;overflow:hidden;background:url('assets/dantech-business.svg') center/cover;display:flex;align-items:flex-end;padding:20px;color:#fff;margin-bottom:15px}.hero h2{margin:0;font-size:28px;text-shadow:0 2px 12px #0008}.hero p{margin:5px 0 0}
+.toast{position:fixed;right:18px;bottom:18px;background:#071827;color:#fff;padding:12px 16px;border-radius:9px;display:none;z-index:20}.mobile{display:none}
+.modal{position:fixed;inset:0;background:#0007;display:grid;place-items:center;padding:20px;z-index:10}.modalbox{background:#fff;border-radius:15px;padding:20px;width:min(560px,100%)}
+@media(max-width:900px){.side{transform:translateX(-100%);transition:.2s}.side.open{transform:none}main{margin-left:0;width:100%}.mobile{display:inline-block}.metrics,.two,.three{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){main{padding:13px}.metrics,.two,.three,.formgrid,.formgrid.three{grid-template-columns:1fr}.top h2{font-size:19px}}
+@media print{.side,.top,.no-print{display:none!important}main{margin:0;width:100%;padding:0}.page{display:none!important}.page.active{display:block!important}}
+
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px}.calhead{font-weight:800;text-align:center;padding:6px;color:var(--muted);font-size:12px}.calday{min-height:74px;border:1px solid #e1e7ec;border-radius:8px;padding:6px;background:#fff;cursor:pointer}.calday:hover{border-color:var(--blue2);box-shadow:0 2px 8px rgba(0,0,0,.06)}.calday.muted{opacity:.35}.calday .num{font-weight:800}.calday .rev{font-size:11px;color:var(--blue);margin-top:5px}.calday .cnt{font-size:10px;color:var(--muted)}.trajectory{width:100%;height:260px;border:1px solid #e1e7ec;border-radius:10px;background:#fff}.reportTools{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.reportTools>div{min-width:150px}.dangerText{color:#b82d2d;font-weight:700}.saleBusy{opacity:.65;pointer-events:none}.dupbox{background:#fff8e6;color:#7a5100;border:1px solid #f0d38a;padding:10px;border-radius:8px;margin-top:10px;display:none}
+</style>
+<style>
+:root{--blue:#086fd6;--blue2:#00c6ff;--dark:#071827;--red:#e53935;--green:#13a66a;--gold:#f5a623}
+body{background:radial-gradient(circle at 10% 0%,#e9f7ff 0,#f5f8fc 35%,#eef3f8 100%)}
+.side{background:linear-gradient(180deg,#071827,#0a3560 60%,#0879d1);box-shadow:8px 0 35px #002b4a22}
+.sidebrand{padding:24px 18px;border-bottom:1px solid #ffffff22}.sidebrand img{filter:drop-shadow(0 5px 12px #0005)}
+nav button{border-radius:12px;margin:4px 10px;padding:12px 14px;transition:.2s}
+nav button:hover{background:#ffffff18;transform:translateX(3px)}nav button.active{background:linear-gradient(90deg,#0879d1,#00aeea);box-shadow:0 8px 20px #001f3b33}
+.top{backdrop-filter:blur(12px);background:#ffffffcc;border-bottom:1px solid #dbe6ef;position:sticky;top:0;z-index:4}
+.hero{border-radius:22px;background:linear-gradient(120deg,#071827,#0879d1 58%,#00c6ff);box-shadow:0 18px 45px #0879d12b;overflow:hidden;position:relative}
+.hero:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-70px;top:-120px;background:#ffffff18}
+.card{border:1px solid #e2ebf2;border-radius:18px;box-shadow:0 10px 28px #17324d0d;transition:.2s}
+.card:hover{box-shadow:0 14px 35px #17324d16}
+.metric .value{font-weight:800;background:linear-gradient(90deg,#0879d1,#00aeea);-webkit-background-clip:text;color:transparent}
+.btn{border-radius:11px;box-shadow:0 7px 16px #0879d126;font-weight:700}.btn.danger{background:#e53935;color:#fff}.btn.light{box-shadow:none}
+.notice{border-left:4px solid #0879d1;background:#eef8ff}
+.alert{border-left:4px solid #e53935;background:#fff4f4;border-radius:10px;padding:10px;margin:7px 0}
+.tag{border-radius:999px;padding:5px 9px;font-weight:700}.tag.low{background:#ffe7e7;color:#b21f1f}.tag.ok{background:#e7f8ef;color:#087444}
+table tbody tr:hover{background:#f6fbff}th{background:#f2f7fb}
+.bar{border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#00c6ff,#0879d1);min-width:10px}
+
+/* DANTECH lively UI upgrade */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap');
+:root{
+  --blue:#0879d1;--blue2:#00c6ff;--dark:#071827;--bg:#eef5fa;
+  --card:#ffffff;--line:#dce7ef;--text:#152534;--muted:#6b7d8b;
+  --green:#16834a;--gold:#d98700;--purple:#6c5ce7;
+}
+body{font-family:'Inter',Arial,sans-serif;background:
+ radial-gradient(circle at 90% 0%,#dff7ff 0,transparent 28%),
+ radial-gradient(circle at 10% 100%,#eaf0ff 0,transparent 30%),var(--bg)}
+h1,h2,h3,.sidebrand b,.metric .value{font-family:'Nunito','Inter',Arial,sans-serif}
+.top h2{font-weight:900;letter-spacing:-.3px}
+.side{box-shadow:10px 0 35px #06243b22}
+nav button{transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
+nav button.active{box-shadow:0 8px 22px #0879d144}
+.card{position:relative;overflow:hidden}
+.card:before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue2),var(--purple));opacity:.0;transition:.2s}
+.card:hover:before{opacity:1}
+.misc-layout{grid-template-columns:minmax(0,1.05fr) minmax(430px,.95fr);align-items:start}
+.misc-live-card{background:linear-gradient(180deg,#ffffff,#f8fcff);border:1px solid #cfe3f0}
+.misc-live-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.live-indicator{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;background:#e8f8f0;color:#117346;font-size:11px;font-weight:800}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#20b26b;box-shadow:0 0 0 0 #20b26b66;animation:pulseLive 1.8s infinite}
+@keyframes pulseLive{70%{box-shadow:0 0 0 8px #20b26b00}}
+.refresh-btn{display:inline-flex;align-items:center;gap:7px}
+.refresh-btn .refresh-icon{font-size:16px;transition:transform .5s}
+.refresh-btn.spinning .refresh-icon{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#miscRecent tr{animation:rowIn .28s ease both}
+@keyframes rowIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+#miscRecent tr:first-child{background:linear-gradient(90deg,#edf9ff,#fff)}
+.misc-table-wrap{max-height:470px;overflow:auto;border:1px solid #e1ebf2;border-radius:12px}
+.misc-table-wrap table{min-width:760px}
+.misc-table-wrap thead th{position:sticky;top:0;z-index:1;background:#f2f8fc}
+.misc-empty{padding:32px 15px!important}
+.misc-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.misc-stat{padding:12px;border-radius:12px;background:#f4f9fd;border:1px solid #e1edf5}
+.misc-stat b{display:block;font-size:18px;margin-top:3px;font-family:'Nunito'}
+@media(max-width:1050px){.misc-layout{grid-template-columns:1fr}.misc-table-wrap{max-height:420px}}
+@media(max-width:700px){.misc-summary{grid-template-columns:1fr}.misc-live-head{align-items:flex-start;flex-direction:column}.misc-table-wrap{margin-left:-4px;margin-right:-4px}}
+</style>
+
+
+<style>
+/* DANTECH V8 modern login / visual system */
+.login-modern{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(420px,.92fr);padding:0;background:#f3f8fc;overflow:hidden;position:relative}
+.login-visual{position:relative;min-height:100vh;padding:56px 7vw 34px;background:linear-gradient(135deg,#061827 0%,#083866 48%,#0879d1 100%);color:#fff;overflow:hidden}
+.login-visual:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 75% 18%,#21c8ff44 0,transparent 25%),radial-gradient(circle at 12% 90%,#1478ff55 0,transparent 32%);pointer-events:none}
+.login-glow{position:absolute;border-radius:50%;filter:blur(2px);opacity:.28}.glow-one{width:300px;height:300px;right:-80px;top:-80px;background:#00c6ff}.glow-two{width:220px;height:220px;left:-100px;bottom:80px;background:#6c5ce7}
+.login-brand{position:relative;z-index:2;max-width:610px}.login-logo{display:block;width:min(470px,78%);height:auto;max-height:175px;object-fit:contain;object-position:left center;margin:0 0 28px;filter:drop-shadow(0 12px 25px #001a3540)}
+.brand-tag{display:inline-flex;padding:7px 12px;border:1px solid #ffffff2d;border-radius:999px;background:#ffffff12;font-size:10px;font-weight:900;letter-spacing:1.4px;color:#bcecff}.login-brand h1{font-size:clamp(34px,4vw,57px);line-height:1.04;letter-spacing:-1.8px;margin:18px 0 14px;max-width:650px}.login-brand h1 span{background:linear-gradient(90deg,#8be9ff,#fff);-webkit-background-clip:text;color:transparent}.login-brand p{font-size:15px;line-height:1.75;color:#d7eaf6;max-width:600px;margin:0}
+.login-feature-grid{position:relative;z-index:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;max-width:650px;margin-top:30px}.login-feature{padding:14px;border:1px solid #ffffff1d;border-radius:15px;background:#ffffff0b;backdrop-filter:blur(8px);box-shadow:0 12px 30px #00142622}.login-feature b{display:block;font-size:12px;margin-bottom:5px}.login-feature small{display:block;color:#b9d1df;font-size:10px;line-height:1.4}
+.login-picture-card{position:absolute;z-index:2;border:6px solid #ffffff1c;border-radius:20px;overflow:hidden;box-shadow:0 25px 70px #00152655;background:#fff}.login-picture-card img{display:block;width:100%;height:100%;object-fit:cover}.picture-one{width:280px;height:190px;right:7%;bottom:120px;transform:rotate(2deg)}.picture-two{width:235px;height:105px;right:28%;bottom:42px;transform:rotate(-4deg);opacity:.92}.picture-two img{object-position:center}
+.login-bottom-note{position:absolute;z-index:3;left:7vw;bottom:28px;color:#9fc1d4;font-size:10px;font-weight:800;letter-spacing:1px}.login-bottom-note span{margin:0 8px;color:#3ed2ff}
+.login-panel{display:flex;align-items:center;justify-content:center;padding:45px 5vw;background:radial-gradient(circle at 90% 0%,#dff7ff 0,transparent 28%),#f6faff}.loginbox-modern{width:min(510px,100%);padding:38px 40px;border:1px solid #dbe9f2;border-radius:27px;background:#ffffffef;box-shadow:0 30px 80px #0b3b5e18;backdrop-filter:blur(16px)}.mobile-brand{display:none}.welcome-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#0879d1,#00c6ff);color:#fff;font-size:22px;box-shadow:0 10px 25px #0879d13d}.login-heading{margin:20px 0 24px}.eyebrow{font-size:10px;letter-spacing:1.6px;font-weight:900;color:#0879d1}.login-heading h2{margin:5px 0 7px;font-size:30px;letter-spacing:-.8px;color:#132d45}.login-heading p{margin:0;color:#718392;font-size:13px}.modern-field{margin:15px 0}.modern-field label{font-size:11px;color:#455e70;margin-bottom:7px}.input-icon-wrap{position:relative;display:flex;align-items:center}.input-icon-wrap>span{position:absolute;left:14px;color:#7a94a7;font-size:14px;z-index:1}.modern-field input{padding:14px 42px;border:1px solid #d8e5ee;border-radius:13px;background:#fbfdff;box-shadow:inset 0 1px 1px #07324b06;transition:.2s}.modern-field input:focus{border-color:#0879d1;box-shadow:0 0 0 4px #0879d116;outline:none;background:#fff}.eye-btn{position:absolute;right:8px;border:0;background:transparent;color:#7890a0;padding:8px;border-radius:8px}.login-options{display:flex;align-items:center;justify-content:space-between;margin:9px 0 18px;font-size:11px;color:#6c7f8c}.remember{display:flex;align-items:center;gap:6px;margin:0;font-size:11px}.remember input{width:14px;height:14px;accent-color:#0879d1}.secure-label{font-weight:800;color:#178452}.login-btn{width:100%;padding:14px 16px;border-radius:13px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#086fd6,#00aeea);font-size:14px;box-shadow:0 14px 28px #0879d13b}.login-btn:hover{transform:translateY(-1px);box-shadow:0 18px 32px #0879d148}.login-arrow{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:#ffffff25;font-size:18px}.login-msg{min-height:18px;color:#c33;font-size:11px;margin:8px 0;text-align:center}.login-divider{display:flex;align-items:center;gap:10px;margin:20px 0 12px;color:#a0b0bb;font-size:9px;font-weight:900;letter-spacing:1.5px}.login-divider:before,.login-divider:after{content:"";height:1px;background:#e3ebf1;flex:1}.login-mini-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.login-mini-cards>div{padding:10px;border:1px solid #e3edf3;border-radius:11px;background:#f7fbfe}.login-mini-cards b{display:block;font-size:10px;color:#173a53}.login-mini-cards small{font-size:9px;color:#7d909d}.login-notice{margin-top:14px;font-size:10px!important;border-left:0!important;background:#eef8ff!important;color:#175b83!important}.login-notice span{color:#6b8292;line-height:1.5}
+@media(max-width:1050px){.login-modern{grid-template-columns:1fr}.login-visual{min-height:48vh;padding:36px 7vw 100px}.login-brand h1{font-size:38px}.login-picture-card{display:none}.login-bottom-note{left:7vw}.login-panel{padding:35px 20px}.loginbox-modern{margin-top:-65px;position:relative;z-index:5}}
+@media(max-width:600px){.login-visual{min-height:300px;padding:25px 20px 75px}.login-logo{width:260px;max-height:100px;margin-bottom:18px}.login-brand h1{font-size:29px;letter-spacing:-1px}.login-brand p{font-size:12px;line-height:1.55}.login-feature-grid{display:none}.login-bottom-note{left:20px;bottom:25px;font-size:8px}.login-panel{padding:0 12px 25px}.loginbox-modern{padding:28px 22px;border-radius:22px;margin-top:-45px}.login-heading h2{font-size:25px}.login-mini-cards{grid-template-columns:1fr 1fr 1fr}}
+/* V8 dashboard polish inspired by the new login visual */
+.top{box-shadow:0 10px 30px #0b3b5e0b}.top h2{font-size:24px}.hero{min-height:205px;padding:28px;background:linear-gradient(115deg,#061827 0%,#0879d1 55%,#00c6ff 100%)}.hero h2{font-size:32px}.metric{background:linear-gradient(145deg,#fff,#f7fcff)}.metric .value{font-size:29px}.card h3{font-weight:900}.misc-live-card{box-shadow:0 16px 40px #0879d112}.misc-stat b{font-size:21px;color:#0a69bd}.live-indicator{box-shadow:0 5px 12px #20b26b22}
+</style>
+
+</head>
+<body>
+<div id="login" class="login login-modern">
+  <div class="login-visual">
+    <div class="login-glow glow-one"></div><div class="login-glow glow-two"></div>
+    <div class="login-brand">
+      <img src="assets/dantech-logo.png" alt="Dantech Cyber Solutions logo" class="login-logo">
+      <div class="brand-tag">SMART BUSINESS MANAGEMENT</div>
+      <h1>Everything your business needs, <span>in one place.</span></h1>
+      <p>Manage sales, services, stock, expenses, credit and reports with a clean, connected POS built for Dantech Cyber Solutions.</p>
+    </div>
+    <div class="login-feature-grid">
+      <div class="login-feature"><b>⚡ Live Updates</b><small>See new transactions immediately.</small></div>
+      <div class="login-feature"><b>📊 Smart Reports</b><small>Track sales and business performance.</small></div>
+      <div class="login-feature"><b>🔒 Secure Data</b><small>Protected online business records.</small></div>
+    </div>
+    <div class="login-picture-card picture-one"><img src="assets/login-dashboard-preview.png" alt="Dantech POS preview"></div>
+    <div class="login-picture-card picture-two"><img src="assets/dantech-business.svg" alt="Dantech business illustration"></div>
+    <div class="login-bottom-note">DANTECH CYBER SOLUTIONS <span>•</span> SMART • SIMPLE • PROFESSIONAL</div>
+  </div>
+  <div class="login-panel">
+    <div class="loginbox loginbox-modern">
+      <div class="mobile-brand"><img src="assets/dantech-logo.png" alt="Dantech Cyber Solutions"></div>
+      <div class="welcome-icon">↗</div>
+      <div class="login-heading"><div class="eyebrow">WELCOME BACK</div><h2>Sign in to your account</h2><p>Access your Dantech Transaction Management System.</p></div>
+      <div class="field modern-field"><label>Email / Username</label><div class="input-icon-wrap"><span>✉</span><input id="email" placeholder="Enter your email address" autocomplete="username"></div></div>
+      <div class="field modern-field"><label>Password</label><div class="input-icon-wrap"><span>🔒</span><input id="password" type="password" placeholder="Enter your password" autocomplete="current-password"><button type="button" class="eye-btn" onclick="togglePassword()">◉</button></div></div>
+      <div class="login-options"><label class="remember"><input id="rememberLogin" type="checkbox" checked> <span>Remember me</span></label><span class="secure-label">🔐 Secure login</span></div>
+      <button class="btn login-btn" onclick="signIn()"><span>Sign In</span><span class="login-arrow">→</span></button>
+      <p id="loginMsg" class="login-msg"></p>
+      <div class="login-divider"><span>BUSINESS MANAGEMENT</span></div>
+      <div class="login-mini-cards"><div><b>Sales</b><small>POS & receipts</small></div><div><b>Services</b><small>Misc. transactions</small></div><div><b>Inventory</b><small>Stock control</small></div></div>
+      <div class="notice login-notice"><b>Secure online system</b><br><span>Your Dantech data is stored securely in Supabase. Admins can manage branches, users and permissions from the system.</span></div>
+    </div>
+  </div>
+</div>
+
+
+<div id="app" class="app hidden">
+<aside id="side" class="side"><div class="sidebrand"><img src="assets/dantech-mark.svg"><div><b>DANTECH</b><small>Cyber Solutions</small></div></div>
+<nav>
+<button class="active" onclick="go('dashboard',this)">▣ Dashboard</button>
+<button onclick="go('pos',this)">▤ Sales / POS</button>
+<button onclick="go('inventory',this)">▦ Inventory</button>
+<button onclick="go('services',this)">⚙ Services</button>
+<button onclick="go('misc',this)">▣ Misc. Sales &amp; Services</button>
+<button onclick="go('credit',this)">▤ Credit / Debtors</button>
+<button onclick="go('expenses',this)">− Expenses</button>
+<button class="adminItem" onclick="go('purchases',this)">＋ Purchases</button>
+<button class="adminItem" onclick="go('transfers',this)">⇄ Stock Transfers</button>
+<button class="adminItem" onclick="go('reports',this)">◒ Reports Centre</button>
+<button class="adminItem" onclick="go('activity',this)">◷ Activity Log</button>
+<button class="adminItem" onclick="go('users',this)">👥 Users</button>
+<button onclick="go('account',this)">👤 My Account</button>
+<button class="adminItem" onclick="go('settings',this)">⚙ Admin Settings</button>
+<button onclick="signOut()">↪ Sign Out</button>
+</nav></aside>
+<main><div class="top"><div><button class="btn dark mobile" onclick="side.classList.toggle('open')">☰</button> <h2 id="title" style="display:inline">Dashboard</h2></div>
+<div class="actions"><button class="btn light refresh-btn" onclick="refreshCurrentView()"><span class="refresh-icon">↻</span> Refresh</button><div class="notif-wrap"><button id="notifBtn" class="btn light notif-btn" onclick="toggleNotifications()" title="Notifications">🔔<span id="notifBadge" class="notif-badge hidden">0</span></button><div id="notifPanel" class="notif-panel hidden"><div class="notif-head"><div><b>Notifications</b><br><small style="color:var(--muted)">Business alerts and recent activity</small></div><button class="btn light" style="padding:6px 9px;font-size:11px" onclick="markNotificationsRead()">Mark all read</button></div><div id="notifList" class="notif-list"></div></div></div><div class="userbox" id="userbox"></div></div></div>
+
+<section id="dashboard" class="page active">
+<div class="hero"><div><h2>Dantech Cyber Solutions</h2><p id="dashSub">Smart business management • Stock • Sales • Services</p></div></div>
+<div class="grid metrics">
+<div class="card metric"><div class="label">TODAY'S SALES</div><div class="value" id="dSales">KES 0</div><div class="hint">Today only</div></div>
+<div class="card metric"><div class="label">TODAY'S EXPENSES</div><div class="value" id="dExp">KES 0</div><div class="hint">Recorded today</div></div>
+<div class="card metric"><div class="label">TODAY'S M-PESA</div><div class="value" id="dMpesa">KES 0</div><div class="hint">Collections</div></div>
+<div class="card metric"><div class="label">LOW STOCK</div><div class="value" id="dLow">0</div><div class="hint">Needs attention</div></div>
+<div class="card metric"><div class="label">OUTSTANDING CREDIT</div><div class="value" id="dCredit">KES 0</div><div class="hint">Unpaid customer balances</div></div>
+</div>
+<div class="grid dashboard-charts"><div class="card chart-card"><div class="sectionhead"><div><h3>Sales Trend</h3><p style="margin:3px 0;color:var(--muted);font-size:12px">Last 7 days • sales and miscellaneous services</p></div><span class="tag ok">LIVE DATA</span></div><div class="chart-wrap"><canvas id="salesTrendChart"></canvas></div></div><div class="card chart-card"><div class="sectionhead"><div><h3>Payment Mix</h3><p style="margin:3px 0;color:var(--muted);font-size:12px">Today's collections</p></div></div><div class="chart-wrap"><canvas id="paymentMixChart"></canvas></div></div></div>
+<div class="grid two" style="margin-top:15px"><div class="card"><h3>Recent Activity Today</h3><div id="todayList"></div></div><div class="card"><h3>Low Stock Alerts</h3><div id="alerts"></div></div></div>
+</section>
+
+<section id="pos" class="page">
+<div class="grid two"><div class="card"><h3>New Sale</h3>
+<div class="formgrid"><div><label>Search Product / Service</label><input id="saleSearch" type="search" placeholder="Type product name or service..." autocomplete="off" oninput="filterSaleItems()"><div style="height:6px"></div><label>Select Product / Service</label><select id="saleItem"></select></div><div><label>Quantity</label><input id="saleQty" type="number" min="1" value="1"></div><div><label>Discount Type</label><select id="discountType"><option value="none">No Discount</option><option value="amount">Fixed Amount (KES)</option><option value="percent">Percentage (%)</option></select></div><div><label>Discount</label><input id="discount" type="number" min="0" value="0"></div><div><label>Payment Method</label><select id="payment"><option>Cash</option><option>M-Pesa</option><option>Card</option><option>Other</option></select></div><div><label>M-Pesa Reference</label><input id="mpesaRef" placeholder="Optional"></div></div>
+<div class="notice" style="margin-top:12px">Final amount: <b id="finalTotal">KES 0</b></div><div class="actions" style="margin-top:12px"><button class="btn" onclick="completeSale()">COMPLETE SALE</button><button class="btn light" onclick="printReceipt()">PRINT RECEIPT</button></div></div>
+<div class="card"><h3>Today's Sales</h3><div id="recent"></div></div></div><div id="receipt"></div>
+</section>
+
+<section id="misc" class="page">
+<div class="grid misc-layout">
+<div class="card">
+<h3>✨ Miscellaneous Sales &amp; Services</h3>
+<p style="color:var(--muted);font-size:13px;margin-top:-5px">Record a quick service or miscellaneous sale without adding it to inventory.</p>
+<div class="formgrid">
+<div><label>Service / Sale Description</label><input id="miscName" placeholder="e.g. KRA application, typing, passport photo"></div>
+<div><label>Quantity</label><input id="miscQty" type="number" min="1" value="1"></div>
+<div><label>Unit Price (KES)</label><input id="miscPrice" type="number" min="0" step="0.01" placeholder="Enter price"></div>
+<div><label>Discount (KES)</label><input id="miscDiscount" type="number" min="0" step="0.01" value="0"></div>
+<div><label>Payment Method</label><select id="miscPayment"><option>Cash</option><option>M-Pesa</option><option>Card</option><option>Other</option></select></div>
+<div><label>M-Pesa Reference</label><input id="miscMpesa" placeholder="Optional"></div>
+</div>
+<div class="notice" style="margin-top:12px">Branch: <b id="miscBranch">—</b> &nbsp;|&nbsp; Final amount: <b id="miscTotal">KES 0</b></div>
+<div class="actions" style="margin-top:12px">
+<button class="btn" onclick="completeMiscSale()">RECORD MISC. SALE</button>
+<button class="btn light" onclick="printMiscReceipt()">PRINT RECEIPT</button>
+</div>
+</div>
+<div class="card misc-live-card">
+<div class="misc-live-head">
+  <div>
+    <h3 style="margin-bottom:4px">📋 Today's Miscellaneous Transactions</h3>
+    <small style="color:var(--muted)">New entries appear here immediately after they are recorded.</small>
+  </div>
+  <div class="actions">
+    <span class="live-indicator"><span class="live-dot"></span> LIVE</span>
+    <button id="miscRefreshBtn" class="btn light refresh-btn" onclick="manualRefreshMisc()"><span class="refresh-icon">↻</span> Refresh</button>
+  </div>
+</div>
+<div class="misc-summary">
+  <div class="misc-stat"><span class="label">TODAY'S MISC. SALES</span><b id="miscTodayCount">0</b></div>
+  <div class="misc-stat"><span class="label">TODAY'S TOTAL</span><b id="miscTodayTotal">KES 0</b></div>
+</div>
+<div class="misc-table-wrap">
+<table>
+<thead><tr><th>Time</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Discount</th><th>Total</th><th>Payment</th><th>M-Pesa Ref.</th><th>Action</th></tr></thead>
+<tbody id="miscRecent"></tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="card" style="margin-top:15px">
+<div class="sectionhead"><h3>What this tab is for</h3></div>
+<p style="margin:0;color:var(--muted);line-height:1.6">Use this tab for services and one-off sales that do not need stock tracking, such as typing, scanning, lamination, binding, KRA/eCitizen assistance, passport photos, online applications, printing jobs, and other miscellaneous services.</p>
+</div>
+</section>
+
+<section id="credit" class="page">
+<div class="grid two">
+<div class="card">
+<h3>Record Customer Credit</h3>
+<p style="color:var(--muted);font-size:13px;margin-top:-5px">Record stock issued on credit or services provided on credit. Stock items are linked to the main inventory database: quantities given on credit reduce stock immediately, and the ledger keeps the linked product record.</p>
+<div class="formgrid">
+<div><label>Customer Name</label><input id="creditCustomer" placeholder="Customer full name"></div>
+<div><label>Phone / Contact</label><input id="creditPhone" placeholder="Optional phone number"></div>
+<div><label>Credit Type</label><select id="creditType" onchange="updateCreditForm()"><option value="stock">Stock / Product</option><option value="service">Service / Other</option></select></div>
+<div id="creditStockBox"><label>Stock Product</label><input id="creditProductSearch" list="creditProductList" placeholder="Type product name" oninput="updateCreditForm()"><datalist id="creditProductList"></datalist><input id="creditProduct" type="hidden"></div>
+<div><label>Quantity</label><input id="creditQty" type="number" min="1" value="1" oninput="updateCreditForm()"></div>
+<div id="creditServiceBox" style="display:none"><label>Service / Description</label><input id="creditDescription" placeholder="e.g. Printing, typing, KRA application"></div>
+<div id="creditManualBox" style="display:none"><label>Amount Owed (KES)</label><input id="creditAmount" type="number" min="0.01" step="0.01" placeholder="Enter amount owed manually" oninput="updateCreditForm()"></div>
+<div><label>Due Date</label><input id="creditDueDate" type="date"></div>
+<div><label>Notes</label><input id="creditNotes" placeholder="Optional notes"></div>
+</div>
+<div class="notice" style="margin-top:12px">Amount to record: <b id="creditTotal">KES 0</b></div>
+<div class="actions" style="margin-top:12px"><button class="btn" onclick="recordCredit()">RECORD CREDIT</button><button class="btn light" onclick="resetCreditForm()">CLEAR</button></div>
+</div>
+<div class="card">
+<div class="sectionhead"><h3>Credit Summary</h3><span class="tag low" id="creditOutstanding">KES 0</span></div>
+<div class="grid" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+<div class="notice">Total Credit<br><b id="creditTotalOwed">KES 0</b></div>
+<div class="notice">Amount Paid<br><b id="creditTotalPaid">KES 0</b></div>
+</div>
+<div id="creditSelectedInfo" class="notice" style="margin-top:12px;display:none"></div>
+<div class="formgrid" style="margin-top:12px">
+<div><label>Payment Amount (KES)</label><input id="creditPaymentAmount" type="number" min="0.01" step="0.01" placeholder="Enter payment"></div>
+<div><label>Payment Method</label><select id="creditPaymentMethod"><option>Cash</option><option>M-Pesa</option><option>Card</option><option>Other</option></select></div>
+<div><label>M-Pesa Reference</label><input id="creditPaymentRef" placeholder="Optional"></div>
+</div>
+<button class="btn green" style="margin-top:10px" onclick="recordCreditPayment()">RECORD PAYMENT</button>
+</div>
+</div>
+<div class="card" style="margin-top:15px">
+<div class="sectionhead"><h3>Credit / Debtors Ledger</h3><span class="tag ok" id="creditCount">0 accounts</span></div>
+<div class="formgrid">
+<div><label>Search Customer / Item</label><input id="creditSearch" oninput="renderCredit()" placeholder="Customer, phone or item"></div>
+<div><label>Status</label><select id="creditStatus" onchange="renderCredit()"><option value="all">All</option><option value="outstanding">Outstanding</option><option value="paid">Paid</option></select></div>
+</div>
+<div style="overflow:auto;margin-top:14px"><table><thead><tr><th>Date</th><th>Customer</th><th>Type</th><th>Item / Service</th><th>Owed</th><th>Paid</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody id="creditRows"></tbody></table></div>
+</div>
+</section>
+
+<section id="inventory" class="page"><div class="card"><div class="sectionhead"><h3>Branch Inventory</h3><button class="btn adminItem" onclick="productForm()">+ ADD PRODUCT</button></div>
+<div class="formgrid"><div><label>Search</label><input id="invSearch" oninput="renderInventory()" placeholder="Product or SKU"></div><div><label>Branch</label><select id="invBranch" onchange="renderInventory()"><option>Branch 1</option><option>Branch 2</option></select></div></div>
+<div style="overflow:auto;margin-top:14px"><table><thead><tr><th>Product</th><th>SKU</th><th>Cost</th><th>Price</th><th>Qty</th><th>Status</th><th>Action</th></tr></thead><tbody id="invRows"></tbody></table></div></div></section>
+
+<section id="services" class="page"><div class="card"><div class="sectionhead"><h3>Services</h3><button class="btn" onclick="serviceForm()">+ ADD NEW SERVICE</button></div>
+<div class="notice" style="margin-bottom:12px">Staff can add a new service and type the selling price manually. No price dropdown is used.</div>
+<div style="overflow:auto"><table><thead><tr><th>Service</th><th>Price</th><th>Branch</th><th>Added</th><th>Action</th></tr></thead><tbody id="svcRows"></tbody></table></div></div></section>
+
+<section id="expenses" class="page"><div class="card"><div class="sectionhead"><h3>Expenses</h3><button class="btn" onclick="expenseForm()">+ RECORD EXPENSE</button></div>
+<div class="notice" style="margin-bottom:12px">Expenses are recorded only. Staff cannot edit or delete expense records.</div>
+<table><thead><tr><th>Date</th><th>Description</th><th>Branch</th><th>Amount</th><th>Recorded By</th></tr></thead><tbody id="expRows"></tbody></table></div></section>
+
+<section id="purchases" class="page"><div class="card"><div class="sectionhead"><h3>Supplier Purchases</h3><button class="btn" onclick="purchaseForm()">+ RECORD PURCHASE</button></div><table><thead><tr><th>Date</th><th>Supplier</th><th>Product</th><th>Qty</th><th>Total</th><th>Branch</th></tr></thead><tbody id="purRows"></tbody></table></div></section>
+<section id="transfers" class="page"><div class="card"><div class="sectionhead"><h3>Stock Transfers</h3><button class="btn" onclick="transferForm()">+ NEW TRANSFER</button></div><table><thead><tr><th>Date</th><th>Product</th><th>From</th><th>To</th><th>Qty</th></tr></thead><tbody id="trRows"></tbody></table></div></section>
+
+<section id="reports" class="page"><div class="card">
+<div class="sectionhead"><div><h3>Admin Reports Centre</h3><p style="margin:3px 0;color:var(--muted)">Branch 1 and Branch 2 remain separate in every report.</p></div><button class="btn light" onclick="printReport()">PRINT REPORT</button></div>
+<div class="formgrid three"><div><label>Quick Period</label><select id="reportPeriod" onchange="applyReportPeriod()"><option value="day">Today</option><option value="week">Last 7 Days</option><option value="month">This Month</option><option value="year">This Year</option><option value="custom">Custom Dates</option></select></div>
+<div><label>From Date</label><input id="reportFrom" type="date" onchange="setCustomReportDates()"></div>
+<div><label>To Date</label><input id="reportTo" type="date" onchange="setCustomReportDates()"></div>
+<div><label>Branch</label><select id="reportBranch" onchange="renderReports()"><option value="ALL">All Branches</option><option>Branch 1</option><option>Branch 2</option></select></div>
+<div><label>Activity</label><select id="reportActivity" onchange="renderReports()"><option value="sales">Sales / Earnings</option><option value="expenses">Expenses</option><option value="purchases">Supplier Purchases</option><option value="transfers">Stock Transfers</option><option value="services">Services Added</option><option value="credit_payments">Debt Collections / Credit Payments</option></select></div></div>
+<div class="grid metrics" style="margin-top:15px"><div class="card metric"><div class="label">REVENUE</div><div class="value" id="rRev">KES 0</div></div><div class="card metric"><div class="label">EXPENSES</div><div class="value" id="rExp">KES 0</div></div><div class="card metric"><div class="label">GROSS PROFIT</div><div class="value" id="rGross">KES 0</div></div><div class="card metric"><div class="label">NET AFTER EXPENSES</div><div class="value" id="rNet">KES 0</div></div></div>
+<div class="grid two" style="margin-top:15px"><div class="card"><h3>Sales Trajectory</h3><div id="trajectory" class="trajectory"></div><div id="trajectoryNote" style="color:var(--muted);font-size:12px;margin-top:7px"></div></div><div class="card"><h3>Payment Mix</h3><div id="mix"></div><div id="rChart" class="chart" style="margin-top:12px"></div></div></div>
+<div class="card" style="margin-top:15px"><div class="sectionhead"><div><h3>Sales Calendar</h3><p style="margin:3px 0;color:var(--muted)">Click any day to trace the sales and amount for that exact date.</p></div><div class="actions"><button class="btn light" onclick="moveCalendar(-1)">‹</button><b id="calTitle"></b><button class="btn light" onclick="moveCalendar(1)">›</button></div></div><div id="salesCalendar" class="calendar"></div></div>
+<div class="card" style="margin-top:15px"><h3 id="activityReportTitle">Activity Report</h3><div style="overflow:auto"><table><thead id="reportHead"></thead><tbody id="reportRows"></tbody></table></div></div>
+<div class="card" style="margin-top:15px"><h3>Branch Comparison</h3><table><thead><tr><th>Branch</th><th>Revenue</th><th>Expenses</th><th>Gross Profit</th><th>Net</th></tr></thead><tbody id="branchRows"></tbody></table></div>
+</div></section>
+
+<section id="activity" class="page"><div class="card"><h3>Employee Activity Log</h3><table><thead><tr><th>Date/Time</th><th>User</th><th>Branch</th><th>Action</th></tr></thead><tbody id="activityRows"></tbody></table></div></section>
+
+<section id="users" class="page"><div class="card"><div class="sectionhead"><div><h3>User & Branch Management</h3><p style="margin:3px 0;color:var(--muted)">Create Auth accounts in Supabase Authentication, then assign their Dantech role and branch here.</p></div></div>
+<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Branch</th><th>Action</th></tr></thead><tbody id="userRows"></tbody></table></div></section>
+
+<section id="account" class="page"><div class="grid two"><div class="card"><h3>My Account</h3><div class="notice" id="accountInfo"></div></div><div class="card"><h3>Change My Password</h3><div class="field"><label>New Password</label><input id="newPassword" type="password"></div><div class="field"><label>Confirm New Password</label><input id="confirmPassword" type="password"></div><button class="btn" onclick="changePassword()">CHANGE PASSWORD</button></div></div></section>
+
+<section id="settings" class="page"><div class="grid two"><div class="card"><h3>Business Settings</h3><div class="formgrid"><div><label>Business Name</label><input id="setName"></div><div><label>Phone</label><input id="setPhone"></div><div><label>Branch 1 Name</label><input id="setB1"></div><div><label>Branch 2 Name</label><input id="setB2"></div></div><button class="btn" style="margin-top:12px" onclick="saveSettings()">SAVE SETTINGS</button></div><div class="card"><h3>Online Database</h3><div class="notice">Supabase stores the data online. Run the included migration SQL once before using the new features.</div></div></div></section>
+</main></div><div id="toast" class="toast"></div>
+<div id="modal" class="modal hidden"><div class="modalbox"><div class="sectionhead"><h3 id="modalTitle"></h3><button class="btn light" onclick="closeModal()">CLOSE</button></div><div id="modalBody"></div><div class="actions" style="margin-top:15px"><button class="btn" id="modalSave">SAVE</button></div></div></div>
+
+<script>
+const SUPABASE_URL="https://tsfclvspkmzjzsclrzqj.supabase.co",SUPABASE_ANON_KEY="sb_publishable_ek_5D3C1Us0G-3C0xaimJw_NrTfy4sf";
+let sb=null,user=null,profile=null,lastSale=null,lastMiscSale=null,cache={products:[],services:[],sales:[],expenses:[],purchases:[],transfers:[],activity:[],misc_sales:[],credits:[],credit_payments:[]},usersCache=[];
+let salesTrendChart=null,paymentMixChart=null,miscRealtimeChannel=null,salesRealtimeChannel=null;
+let notificationReadIds=new Set(JSON.parse(localStorage.getItem("dantech_notification_read")||"[]"));
+const $=id=>document.getElementById(id);
+const money=n=>'KES '+Number(n||0).toLocaleString('en-KE',{maximumFractionDigits:2});
+const today=()=>{let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(t){$('toast').textContent=t;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2500)}
+function notificationItems(){
+  let items=[], td=today();
+  cache.products.filter(x=>Number(x.qty)<=Number(x.low_stock_threshold)).slice(0,8).forEach(x=>items.push({id:"low-"+x.id,title:"Low stock: "+x.name,text:`${x.qty} left • minimum ${x.low_stock_threshold}`,type:"warning",icon:"⚠"}));
+  cache.credits.filter(x=>{let bal=Math.max(0,Number(x.amount_owed||0)-Number(x.amount_paid||0));return bal>0&&x.due_date&&String(x.due_date).slice(0,10)<td}).slice(0,8).forEach(x=>items.push({id:"credit-"+x.id,title:"Overdue credit: "+x.customer_name,text:`${money(Math.max(0,Number(x.amount_owed||0)-Number(x.amount_paid||0)))} outstanding`,type:"danger",icon:"💳"}));
+  cache.sales.filter(x=>String(x.sale_date).slice(0,10)===td).slice(0,6).forEach(x=>items.push({id:"sale-"+x.id,title:"Sale recorded",text:`${x.item_name} • ${money(x.final_total)}`,type:"success",icon:"✓"}));
+  cache.misc_sales.filter(x=>String(x.sale_date).slice(0,10)===td).slice(0,6).forEach(x=>items.push({id:"misc-"+x.id,title:"Misc. transaction",text:`${x.service_name} • ${money(x.final_total)}`,type:"success",icon:"✦"}));
+  return items.sort((a,b)=>notificationReadIds.has(a.id)-notificationReadIds.has(b.id)).slice(0,18);
+}
+function renderNotifications(){
+  if(!$('notifList'))return; let items=notificationItems(),unread=items.filter(x=>!notificationReadIds.has(x.id)).length;
+  $('notifBadge').textContent=unread; $('notifBadge').classList.toggle('hidden',unread===0);
+  $('notifList').innerHTML=items.length?items.map(x=>`<div class="notif-item ${x.type}"><div class="notif-icon">${x.icon}</div><div><b>${esc(x.title)}</b><small>${esc(x.text)}</small></div></div>`).join(''):'<div class="notif-empty">🔔<br><b>You are all caught up</b><br><small>No new business notifications.</small></div>';
+}
+function toggleNotifications(){let p=$('notifPanel');if(!p)return;p.classList.toggle('hidden');if(!p.classList.contains('hidden'))renderNotifications()}
+function markNotificationsRead(){notificationItems().forEach(x=>notificationReadIds.add(x.id));localStorage.setItem('dantech_notification_read',JSON.stringify([...notificationReadIds].slice(-200)));renderNotifications();toast('Notifications marked as read')}
+function addNotification(id,title,text,type='success',icon='✓'){notificationReadIds.delete(id);localStorage.setItem('dantech_notification_read',JSON.stringify([...notificationReadIds].slice(-200)));renderNotifications();toast(title)}
+function isAdmin(){return profile?.role==='admin'} function myBranch(){return profile?.branch}
+function configured(){return true}
+function togglePassword(){let x=$('password'),b=document.querySelector('.eye-btn');if(!x)return;x.type=x.type==='password'?'text':'password';if(b)b.textContent=x.type==='password'?'◉':'◌'}
+async function signIn(){let {data,error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)return $('loginMsg').textContent='Login failed: '+error.message;await start()}
+async function start(){let {data:{user:u},error:ae}=await sb.auth.getUser();if(ae){$('loginMsg').textContent='Authentication error: '+ae.message;return}user=u;if(!user)return;
+let q=await sb.from('profiles').select('*').eq('id',user.id).single();if(q.error){$('loginMsg').textContent='Your Dantech profile is missing. Run the supplied migration SQL and assign this user a branch/role. '+q.error.message;await sb.auth.signOut();return}
+profile=q.data;$('login').classList.add('hidden');$('app').classList.remove('hidden');$('userbox').textContent=(profile.full_name||user.email)+' • '+(isAdmin()?'Central Admin':profile.branch);
+document.querySelectorAll('.adminItem').forEach(x=>x.style.display=isAdmin()?'block':'none');await loadAll();setupMiscRealtime();setupSalesRealtime()}
+async function signOut(){await sb.auth.signOut();location.reload()}
+async function refreshCurrentView(){
+let btn=document.querySelector('.top .refresh-btn'),icon=btn?.querySelector('.refresh-icon');
+if(btn){btn.disabled=true;btn.classList.add('spinning')}
+try{
+  if(!sb||!user||!profile)return;
+  await loadAll();
+  if($('misc').classList.contains('active'))await refreshMiscSales(false);
+  toast('Data refreshed');
+}finally{
+  if(btn){btn.disabled=false;btn.classList.remove('spinning')}
+}
+}
+function go(id,b){if(!$(id))return;document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('title').textContent=id==='pos'?'Sales / POS':id==='reports'?'Reports Centre':id==='credit'?'Credit / Debtors':id[0].toUpperCase()+id.slice(1);if(innerWidth<901)$('side').classList.remove('open');render()}
+async function q(table){let x=sb.from(table).select('*').order('created_at',{ascending:false});if(!isAdmin()&&['products','services','sales','expenses','purchases','misc_sales','credits','credit_payments'].includes(table))x=x.eq('branch',myBranch());let {data,error}=await x;if(error)throw error;return data||[]}
+async function loadAll(){try{for(let t of Object.keys(cache))cache[t]=await q(t);if(isAdmin())await loadUsers();render();await log('Opened '+$('title').textContent)}catch(e){toast(e.message)}}
+async function log(action){if(user&&profile)await sb.from('activity').insert({user_id:user.id,branch:myBranch(),action})}
+function render(){dashboard();pos();renderInventory();renderServices();renderMisc();renderCredit();renderExpenses();renderPurchases();renderTransfers();renderReports();renderActivity();renderUsers();renderAccount();renderSettings()}
+function dashboard(){
+let s=cache.sales.filter(x=>x.sale_date===today()),ms=cache.misc_sales.filter(x=>x.sale_date===today()),cp=cache.credit_payments.filter(x=>x.payment_date===today()),e=cache.expenses.filter(x=>x.expense_date===today()),salesRev=s.reduce((a,x)=>a+Number(x.final_total),0)+ms.reduce((a,x)=>a+Number(x.final_total),0),debtCollected=cp.reduce((a,x)=>a+Number(x.amount),0),r=salesRev+debtCollected,ex=e.reduce((a,x)=>a+Number(x.amount),0),m=s.filter(x=>x.payment_method==='M-Pesa').reduce((a,x)=>a+Number(x.final_total),0)+ms.filter(x=>x.payment_method==='M-Pesa').reduce((a,x)=>a+Number(x.final_total),0)+cp.filter(x=>x.payment_method==='M-Pesa').reduce((a,x)=>a+Number(x.amount),0),low=cache.products.filter(x=>x.qty<=x.low_stock_threshold);
+let creditBalance=cache.credits.reduce((a,x)=>a+Math.max(0,Number(x.amount_owed||0)-Number(x.amount_paid||0)),0);$('dSales').textContent=money(r);$('dExp').textContent=money(ex);$('dMpesa').textContent=money(m);$('dLow').textContent=low.length;$('dCredit').textContent=money(creditBalance);renderDashboardCharts();renderNotifications();
+$('alerts').innerHTML=low.length?low.map(x=>`<div class="alert"><b>${esc(x.name)}</b> — ${x.qty} left (minimum ${x.low_stock_threshold})</div>`).join(''):'<p style="color:var(--muted)">No low-stock alerts.</p>';
+let acts=cache.activity.filter(x=>String(x.created_at||'').slice(0,10)===today()).slice(0,10);
+$('todayList').innerHTML=acts.map(x=>`<p style="border-bottom:1px solid #eee;padding:7px 0"><b>${esc(x.action)}</b><br><small>${esc(x.created_at||'')}</small></p>`).join('')||'<p style="color:var(--muted)">No activity recorded today.</p>';
+}
+function renderDashboardCharts(){
+ if(typeof Chart==='undefined')return;
+ let labels=[],values=[]; for(let i=6;i>=0;i--){let d=new Date();d.setDate(d.getDate()-i);let ds=fmtDate(d);labels.push(d.toLocaleDateString('en-KE',{weekday:'short'}));values.push(reportRows({start:ds,end:ds},isAdmin()?'ALL':myBranch()).reduce((a,x)=>a+Number(x.final_total||0),0));}
+ let ctx=$('salesTrendChart')?.getContext('2d'); if(ctx){if(salesTrendChart)salesTrendChart.destroy();salesTrendChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Sales',data:values,borderColor:'#0879d1',backgroundColor:'rgba(8,121,209,.12)',fill:true,tension:.35,pointRadius:4,pointHoverRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.raw)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'KES '+Number(v).toLocaleString('en-KE')}},x:{grid:{display:false}}}}});}
+ let td=today(),all=[...cache.sales.filter(x=>String(x.sale_date).slice(0,10)===td),...cache.misc_sales.filter(x=>String(x.sale_date).slice(0,10)===td),...cache.credit_payments.filter(x=>String(x.payment_date).slice(0,10)===td)],mix={};all.forEach(x=>{let k=x.payment_method||'Other';mix[k]=(mix[k]||0)+Number(x.final_total??x.amount??0)});
+ let pctx=$('paymentMixChart')?.getContext('2d');if(pctx){if(paymentMixChart)paymentMixChart.destroy();let labels2=Object.keys(mix),data2=Object.values(mix);paymentMixChart=new Chart(pctx,{type:'doughnut',data:{labels:labels2.length?labels2:['No collections'],datasets:[{data:data2.length?data2:[1],backgroundColor:labels2.length?['#0879d1','#00aeea','#6c5ce7','#13a66a','#f5a623']:['#dce7ef'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:14}},tooltip:{callbacks:{label:c=>`${c.label}: ${money(c.raw)}`}}}}});}
+}
+function dateBounds(period){let d=new Date();let end=today(),start;
+if(period==='day')start=end;
+else if(period==='week'){let x=new Date(d);x.setDate(x.getDate()-6);start=x.toISOString().slice(0,10)}
+else if(period==='month')start=new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10);
+else start=d.getFullYear()+'-01-01';return {start,end}}
+function inPeriod(date,p){if(!date)return false;let b=dateBounds(p),s=String(date).slice(0,10);return s>=b.start&&s<=b.end}
+function populateSaleItems(){
+let p=cache.products,s=cache.services,q=($('saleSearch')?.value||'').trim().toLowerCase(),selected=$('saleItem')?.value||'';
+let fp=p.filter(x=>!q||String(x.name).toLowerCase().includes(q)||String(x.sku||'').toLowerCase().includes(q));
+let fs=s.filter(x=>!q||String(x.name).toLowerCase().includes(q));
+$('saleItem').innerHTML='<option value="">Select item…</option>'+
+(fp.length?'<optgroup label="Products">'+fp.map(x=>`<option value="p:${x.id}">${esc(x.name)} — ${money(x.selling_price)} (stock ${x.qty})</option>`).join('')+'</optgroup>':'')+
+(fs.length?'<optgroup label="Services">'+fs.map(x=>`<option value="s:${x.id}">${esc(x.name)} — ${money(x.price)}</option>`).join('')+'</optgroup>':'');
+if(selected&&Array.from($('saleItem').options).some(o=>o.value===selected))$('saleItem').value=selected;
+}
+function filterSaleItems(){populateSaleItems();if(!$('saleItem').value&&$('saleItem').options.length===2)$('saleItem').selectedIndex=1;updateTotal()}
+function pos(){let p=cache.products,s=cache.services;
+populateSaleItems();
+let r=cache.sales.filter(x=>x.sale_date===today()).slice(0,12);
+$('recent').innerHTML=r.map(x=>`<p style="border-bottom:1px solid #eee;padding-bottom:7px"><b>${esc(x.item_name)}</b> ×${x.quantity}<span style="float:right">${money(x.final_total)} ${esc(x.payment_method)} ${isAdmin()?`<button class="btn danger" style="padding:3px 7px;font-size:10px" onclick="deleteSale('${x.id}')">DELETE</button>`:''}</span><br><small>${esc(x.created_at||'')}</small></p>`).join('')||'No sales today';updateTotal()}
+function updateTotal(){let v=$('saleItem').value;if(!v){$('finalTotal').textContent=money(0);return}let [t,id]=v.split(':'),x=t==='p'?cache.products.find(z=>z.id===id):cache.services.find(z=>z.id===id);let q=+$('saleQty').value||1,base=x?Number(t==='p'?x.selling_price:x.price):0,d=+$('discount').value||0,type=$('discountType').value;let dis=type==='percent'?base*q*d/100:type==='amount'?d:0;$('finalTotal').textContent=money(Math.max(0,base*q-dis))}
+['saleItem','saleQty','discount','discountType'].forEach(id=>$(id).addEventListener('input',updateTotal));
+$('saleItem').addEventListener('change',updateTotal);$('discountType').addEventListener('change',updateTotal);
+let saleBusy=false,lastSaleSignature='',lastSaleTime=0;
+function resetSaleForm(){['saleSearch','mpesaRef'].forEach(id=>$(id).value='');$('saleQty').value=1;$('discount').value=0;$('discountType').value='none';$('payment').value='Cash';$('saleItem').value='';$('finalTotal').textContent=money(0);populateSaleItems();}
+async function completeSale(){
+ if(saleBusy)return toast('Sale is already being processed. Please wait.');
+ let [t,id]=($('saleItem').value||':').split(':'),x=t==='p'?cache.products.find(z=>z.id===id):cache.services.find(z=>z.id===id),q=+$('saleQty').value||1;if(!x)return toast('Select a product or service');if(t==='p'&&x.qty<q)return toast('Insufficient stock');
+ let base=Number(t==='p'?x.selling_price:x.price)*q,d=+$('discount').value||0,dt=$('discountType').value,dis=dt==='percent'?base*d/100:dt==='amount'?d:0,final=Math.max(0,base-dis),cost=t==='p'?Number(x.cost_price)*q:0,pay=$('payment').value,ref=$('mpesaRef').value.trim();
+ let sig=[x.id,q,final,pay,ref].join('|'),now=Date.now();if(sig===lastSaleSignature&&now-lastSaleTime<15000&&!confirm('This looks like the same sale you just entered. Record it again?'))return;
+ saleBusy=true;document.querySelectorAll('#pos .btn').forEach(b=>b.classList.add('saleBusy'));
+ try{let {data,error}=await sb.rpc('record_sale',{p_product_id:t==='p'?x.id:null,p_service_id:t==='s'?x.id:null,p_item_name:x.name,p_quantity:q,p_unit_price:Number(t==='p'?x.selling_price:x.price),p_discount:dis,p_final_total:final,p_cost_total:cost,p_payment_method:pay,p_mpesa_reference:ref||null,p_branch:x.branch,p_sale_date:today(),p_user_id:user.id});if(error)throw error;lastSale=Array.isArray(data)?data[0]:data;lastSaleSignature=sig;lastSaleTime=Date.now();await log('Recorded sale: '+x.name+' x'+q);resetSaleForm();await loadAll();addNotification('sale-'+lastSale.id,'Sale recorded successfully',`${x.name} • ${money(final)}`,'success','✓');toast('Sale recorded successfully. Sale form cleared.')}
+ catch(e){toast(e.message)}finally{saleBusy=false;document.querySelectorAll('#pos .btn').forEach(b=>b.classList.remove('saleBusy'))}}
+function printReceipt(){if(!lastSale)return toast('Complete a sale first');$('receipt').innerHTML=`<div class="receipt"><center><img src="assets/dantech-mark.svg" width="45"><h3>Dantech Cyber Solutions</h3></center><hr><div class="line"><span>Receipt</span><b>#${String(lastSale.id||'').slice(0,8)}</b></div><div class="line"><span>Date</span><span>${esc(lastSale.sale_date)}</span></div><div class="line"><span>Branch</span><span>${esc(lastSale.branch)}</span></div><hr><div class="line"><b>${esc(lastSale.item_name)}</b><span>×${lastSale.quantity}</span></div><div class="line"><span>Subtotal</span><span>${money(lastSale.subtotal)}</span></div><div class="line"><span>Discount</span><span>-${money(lastSale.discount)}</span></div><div class="line"><b>TOTAL</b><b>${money(lastSale.final_total)}</b></div><p>Payment: <b>${esc(lastSale.payment_method)}</b></p>${lastSale.mpesa_reference?'<p>M-Pesa Ref: '+esc(lastSale.mpesa_reference)+'</p>':''}<hr><center>Thank you for choosing Dantech Cyber Solutions</center></div>`;setTimeout(()=>print(),100)}
+function renderInventory(){let b=isAdmin()?($('invBranch').value||'Branch 1'):myBranch();$('invBranch').value=b;$('invBranch').disabled=!isAdmin();let q=($('invSearch').value||'').toLowerCase();
+$('invRows').innerHTML=cache.products.filter(x=>x.branch===b&&(String(x.name).toLowerCase().includes(q)||String(x.sku||'').toLowerCase().includes(q))).map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${esc(x.sku)}</td><td>${money(x.cost_price)}</td><td>${money(x.selling_price)}</td><td>${x.qty}</td><td><span class="tag ${x.qty<=x.low_stock_threshold?'low':'ok'}">${x.qty<=x.low_stock_threshold?'LOW STOCK':'OK'}</span></td><td>${isAdmin()?`<button class="btn danger" onclick="deleteProduct('${x.id}','${esc(x.name).replace(/'/g,"\\'")}')">DELETE</button>`:'—'}</td></tr>`).join('')||'<tr><td colspan="7">No products found.</td></tr>'}
+function renderServices(){$('svcRows').innerHTML=cache.services.filter(x=>isAdmin()||x.branch===myBranch()).map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${money(x.price)}</td><td>${esc(x.branch)}</td><td>${String(x.created_at||'').slice(0,10)}</td><td>${isAdmin()?`<button class="btn danger" onclick="deleteService('${x.id}','${esc(x.name).replace(/'/g,"\\'")}')">DELETE</button>`:'—'}</td></tr>`).join('')||'<tr><td colspan="5">No services yet.</td></tr>'}
+function renderMisc(){
+$('miscBranch').textContent=myBranch()||'—';
+paintMiscRows(cache.misc_sales||[]);
+updateMiscTotal();
+}
+function paintMiscRows(rows){
+let td=today(), b=myBranch();
+let r=(rows||[]).filter(x=>String(x.sale_date||'').slice(0,10)===td && (isAdmin()||x.branch===b)).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,50);
+let total=r.reduce((a,x)=>a+Number(x.final_total||0),0);
+if($('miscTodayCount'))$('miscTodayCount').textContent=r.length;
+$('miscTodayTotal').textContent=money(total);
+$('miscRecent').innerHTML=r.map((x,i)=>`<tr><td>${esc(new Date(x.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'}))}</td><td><b>${esc(x.service_name)}</b></td><td>${x.quantity}</td><td>${money(x.unit_price)}</td><td>${money(x.discount)}</td><td><b>${money(x.final_total)}</b></td><td>${esc(x.payment_method)}</td><td>${esc(x.mpesa_reference||'—')}</td><td>${isAdmin()?`<button class="btn danger" style="padding:3px 7px;font-size:10px" onclick="deleteSale('${x.id}',true)">DELETE</button>`:'—'}</td></tr>`).join('')||'<tr><td colspan="9" class="misc-empty" style="color:var(--muted);text-align:center"><b style="font-size:20px">🧾</b><br>No miscellaneous sales recorded today.</td></tr>';
+}
+async function refreshMiscSales(showToast=false){
+if(!sb||!user||!profile)return;
+try{
+  let qx=sb.from('misc_sales').select('*').eq('sale_date',today()).order('created_at',{ascending:false}).limit(50);
+  if(!isAdmin())qx=qx.eq('branch',myBranch());
+  let {data,error}=await qx;
+  if(error)throw error;
+  let other=(cache.misc_sales||[]).filter(x=>String(x.sale_date||'').slice(0,10)!==today());
+  cache.misc_sales=[...(data||[]),...other];
+  paintMiscRows(data||[]);
+  if(showToast)toast('Miscellaneous transactions refreshed');
+}catch(e){console.warn('Misc sales refresh failed:',e);if(showToast)toast('Could not refresh miscellaneous sales');}
+}
+async function manualRefreshMisc(){
+let b=$('miscRefreshBtn'); if(b){b.classList.add('spinning');b.disabled=true}
+await refreshMiscSales(true);
+if(b){b.classList.remove('spinning');b.disabled=false}
+}
+function setupMiscRealtime(){
+if(!sb||miscRealtimeChannel)return;
+miscRealtimeChannel=sb.channel('dantech-misc-live')
+ .on('postgres_changes',{event:'*',schema:'public',table:'misc_sales'},payload=>{
+   let row=payload.new||payload.old;
+   if(row && !isAdmin() && row.branch!==myBranch())return;
+   if(payload.eventType==='INSERT'){
+     cache.misc_sales=[row,...(cache.misc_sales||[]).filter(x=>x.id!==row.id)];
+     paintMiscRows(cache.misc_sales);
+     addNotification('misc-'+row.id,'New miscellaneous transaction',`${row.service_name||'Misc. sale'} • ${money(row.final_total||0)}`,'success','✦');
+   }else if(payload.eventType==='UPDATE'){
+     cache.misc_sales=(cache.misc_sales||[]).map(x=>x.id===row.id?row:x);
+     paintMiscRows(cache.misc_sales);
+   }else if(payload.eventType==='DELETE'){
+     cache.misc_sales=(cache.misc_sales||[]).filter(x=>x.id!==row.id);
+     paintMiscRows(cache.misc_sales);
+   }
+ }).subscribe();
+}
+function setupSalesRealtime(){
+ if(!sb||salesRealtimeChannel)return;
+ salesRealtimeChannel=sb.channel('dantech-sales-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'sales'},payload=>{let row=payload.new;if(row&&!isAdmin()&&row.branch!==myBranch())return;cache.sales=[row,...(cache.sales||[]).filter(x=>x.id!==row.id)];render();addNotification('sale-'+row.id,'New sale recorded',`${row.item_name||'Sale'} • ${money(row.final_total||0)}`,'success','✓')}).subscribe();
+}
+function updateMiscTotal(){
+let q=Math.max(1,+$('miscQty').value||1),p=Math.max(0,+$('miscPrice').value||0),d=Math.max(0,+$('miscDiscount').value||0);
+$('miscTotal').textContent=money(Math.max(0,q*p-d));
+}
+async function completeMiscSale(){
+let name=$('miscName').value.trim(),q=Math.max(1,+$('miscQty').value||1),price=Math.max(0,+$('miscPrice').value||0),d=Math.max(0,+$('miscDiscount').value||0);
+if(!name)return toast('Enter a service or sale description');
+if(price<=0)return toast('Enter a valid unit price');
+if(d>q*price)return toast('Discount cannot exceed the subtotal');
+let final=Math.max(0,q*price-d);
+let {data,error}=await sb.rpc('record_misc_sale',{p_service_name:name,p_quantity:q,p_unit_price:price,p_discount:d,p_final_total:final,p_payment_method:$('miscPayment').value,p_mpesa_reference:$('miscMpesa').value.trim()||null,p_branch:myBranch(),p_sale_date:today(),p_user_id:user.id});
+if(error)return toast(error.message);
+lastMiscSale=Array.isArray(data)?data[0]:data;
+$('miscName').value='';$('miscQty').value=1;$('miscPrice').value='';$('miscDiscount').value=0;$('miscMpesa').value='';
+await refreshMiscSales();
+await log('Recorded miscellaneous sale: '+name+' x'+q);
+paintMiscRows(cache.misc_sales||[]);
+toast('Miscellaneous sale recorded successfully');
+}
+function printMiscReceipt(){
+if(!lastMiscSale)return toast('Record a miscellaneous sale first');
+let x=lastMiscSale;
+$('receipt').innerHTML=`<div class="receipt"><center><img src="assets/dantech-mark.svg" width="45"><h3>Dantech Cyber Solutions</h3></center><hr><div class="line"><span>Receipt</span><b>#${String(x.id||'').slice(0,8)}</b></div><div class="line"><span>Date</span><span>${esc(x.sale_date)}</span></div><div class="line"><span>Branch</span><span>${esc(x.branch)}</span></div><hr><div class="line"><b>${esc(x.service_name)}</b><span>×${x.quantity}</span></div><div class="line"><span>Subtotal</span><span>${money(x.subtotal)}</span></div><div class="line"><span>Discount</span><span>-${money(x.discount)}</span></div><div class="line"><b>TOTAL</b><b>${money(x.final_total)}</b></div><p>Payment: <b>${esc(x.payment_method)}</b></p>${x.mpesa_reference?'<p>M-Pesa Ref: '+esc(x.mpesa_reference)+'</p>':''}<hr><center>Thank you for choosing Dantech Cyber Solutions</center></div>`;
+setTimeout(()=>print(),100);
+}
+['miscQty','miscPrice','miscDiscount'].forEach(id=>$(id).addEventListener('input',updateMiscTotal));
+function populateCreditProducts(){
+let b=myBranch(),search=$('creditProductSearch')?.value||'';
+let products=cache.products.filter(x=>x.branch===b);
+$('creditProductList').innerHTML=products.map(x=>`<option value="${esc(x.name)}">${esc(x.name)} — ${money(x.selling_price)} (stock ${x.qty})</option>`).join('');
+let exact=products.find(x=>String(x.name).trim().toLowerCase()===search.trim().toLowerCase()&&Number(x.qty)>0);
+$('creditProduct').value=exact?exact.id:'';
+}
+function getCreditProduct(){
+let b=myBranch(),search=($('creditProductSearch')?.value||'').trim().toLowerCase();
+return cache.products.find(x=>x.branch===b&&String(x.name).trim().toLowerCase()===search&&Number(x.qty)>0)||null;
+}
+function updateCreditForm(){
+let type=$('creditType').value, stock=type==='stock';
+$('creditStockBox').style.display=stock?'block':'none';
+$('creditServiceBox').style.display=stock?'none':'block';
+$('creditManualBox').style.display=stock?'block':'block';
+$('creditQty').style.display=stock?'block':'none';
+$('creditQty').parentElement.style.display=stock?'block':'none';
+let total=0;
+if(stock){let x=getCreditProduct(),q=Math.max(1,+$('creditQty').value||1);total=x?Number(x.selling_price)*q:Math.max(0,+$('creditAmount').value||0);if(x&&q>x.qty)total=Number(x.selling_price)*x.qty}
+else total=Math.max(0,+$('creditAmount').value||0);
+$('creditTotal').textContent=money(total);
+}
+function resetCreditForm(){
+['creditCustomer','creditPhone','creditProductSearch','creditDescription','creditAmount','creditNotes','creditPaymentAmount','creditPaymentRef'].forEach(id=>{if($(id))$(id).value=''});
+$('creditQty').value=1;$('creditDueDate').value='';$('creditType').value='stock';$('creditPaymentMethod').value='Cash';
+populateCreditProducts();updateCreditForm();
+}
+function renderCredit(){
+if(!$('creditRows'))return;
+populateCreditProducts();
+let q=($('creditSearch').value||'').toLowerCase(),status=$('creditStatus').value;
+let rows=cache.credits.filter(x=>{
+ let bal=Math.max(0,Number(x.amount_owed||0)-Number(x.amount_paid||0));
+ return (!q||[x.customer_name,x.phone,x.item_description,x.notes].join(' ').toLowerCase().includes(q)) &&
+   (status==='all'||(status==='outstanding'&&bal>0)||(status==='paid'&&bal<=0));
+});
+let totalOwed=cache.credits.reduce((a,x)=>a+Number(x.amount_owed||0),0),totalPaid=cache.credits.reduce((a,x)=>a+Number(x.amount_paid||0),0),out=Math.max(0,totalOwed-totalPaid);
+$('creditTotalOwed').textContent=money(totalOwed);$('creditTotalPaid').textContent=money(totalPaid);$('creditOutstanding').textContent=money(out);$('creditCount').textContent=cache.credits.length+' account'+(cache.credits.length===1?'':'s');
+$('creditRows').innerHTML=rows.map(x=>{
+ let bal=Math.max(0,Number(x.amount_owed||0)-Number(x.amount_paid||0)),paid=Number(x.amount_paid||0),st=bal>0?'OUTSTANDING':'PAID';
+ return `<tr><td>${esc(x.credit_date)}</td><td><b>${esc(x.customer_name)}</b><br><small>${esc(x.phone||'')}</small></td><td>${x.product_id?'Stock':'Service'}</td><td>${esc(x.item_description)}${x.quantity>1?' ×'+x.quantity:''}</td><td>${money(x.amount_owed)}</td><td>${money(paid)}</td><td><b>${money(bal)}</b></td><td><span class="tag ${bal>0?'low':'ok'}">${st}</span></td><td><button class="btn light" style="padding:5px 8px;font-size:10px" onclick="editCredit('${x.id}')">EDIT</button> ${bal>0?`<button class="btn light" style="padding:5px 8px;font-size:10px" onclick="selectCreditForPayment('${x.id}')">PAY</button>`:''}</td></tr>`;
+}).join('')||'<tr><td colspan="9">No credit records found.</td></tr>';
+}
+function selectCreditForPayment(id){
+let x=cache.credits.find(z=>z.id===id);if(!x)return;
+let bal=Math.max(0,Number(x.amount_owed||0)-Number(x.amount_paid||0));
+$('creditSelectedInfo').style.display='block';$('creditSelectedInfo').innerHTML=`Selected: <b>${esc(x.customer_name)}</b> — ${esc(x.item_description)}<br>Outstanding balance: <b>${money(bal)}</b>`;
+$('creditPaymentAmount').value=bal.toFixed(2);$('creditPaymentAmount').focus();$('creditPaymentAmount').dataset.creditId=id;
+}
+function editCredit(id){
+let x=cache.credits.find(z=>z.id===id);if(!x)return;
+let isStock=!!x.product_id, p=x.product_id?cache.products.find(z=>z.id===x.product_id):null;
+let body='<div class="notice" style="margin-bottom:12px"><b>'+esc(x.customer_name)+'</b> — '+esc(x.item_description)+'<br>Already paid: <b>'+money(x.amount_paid)+'</b></div>';
+body+='<div class="formgrid">';
+body+='<div><label>Customer Name</label><input id="ecCustomer" value="'+esc(x.customer_name)+'"></div>';
+body+='<div><label>Phone / Contact</label><input id="ecPhone" value="'+esc(x.phone||'')+'"></div>';
+if(isStock && p){
+ body+='<div><label>Product</label><input value="'+esc(p.name)+'" disabled></div>';
+ body+='<div><label>Quantity</label><input id="ecQty" type="number" min="1" value="'+Number(x.quantity||1)+'"></div>';
+ body+='<div><label>Unit Price (KES)</label><input value="'+Number(x.unit_price||p.selling_price).toFixed(2)+'" disabled></div>';
+ body+='<div><label>New Amount Owed (KES)</label><input id="ecAmount" type="number" min="'+Number(x.amount_paid||0).toFixed(2)+'" step="0.01" value="'+Number(x.amount_owed||0).toFixed(2)+'"></div>';
+ body+='<div style="grid-column:1/-1"><small style="color:var(--muted)">For stock credits, changing quantity adjusts inventory by the difference. Increasing the quantity deducts more stock; reducing it returns stock.</small></div>';
+}else{
+ body+='<div><label>Description</label><input id="ecDesc" value="'+esc(x.item_description)+'"></div>';
+ body+='<div><label>Amount Owed (KES)</label><input id="ecAmount" type="number" min="'+Number(x.amount_paid||0).toFixed(2)+'" step="0.01" value="'+Number(x.amount_owed||0).toFixed(2)+'"></div>';
+}
+body+='<div><label>Due Date</label><input id="ecDue" type="date" value="'+esc(x.due_date||'')+'"></div><div><label>Notes</label><input id="ecNotes" value="'+esc(x.notes||'')+'"></div></div>';
+modal('Edit Credit / Add More Credit',body,async()=>{
+ let amount=+$('ecAmount').value||0;
+ if(amount<=0)throw Error('Enter a valid amount owed');
+ if(amount<Number(x.amount_paid||0))throw Error('Amount owed cannot be less than amount already paid');
+ let payload={p_credit_id:id,p_customer_name:$('ecCustomer').value.trim(),p_phone:$('ecPhone').value.trim()||null,p_amount_owed:amount,p_due_date:$('ecDue').value||null,p_notes:$('ecNotes').value.trim()||null,p_user_id:user.id};
+ if(!payload.p_customer_name)throw Error('Customer name is required');
+ if(isStock&&p)payload.p_quantity=Math.max(1,+$('ecQty').value||0);
+ if(!isStock)payload.p_item_description=$('ecDesc').value.trim();
+ let {error}=await sb.rpc('update_credit',payload);if(error)throw error;
+ await log('Updated credit for '+x.customer_name+': '+x.item_description);
+});
+}
+async function recordCredit(){
+let customer=$('creditCustomer').value.trim(),phone=$('creditPhone').value.trim(),type=$('creditType').value;
+if(!customer)return toast('Enter customer name');
+let x=type==='stock'?getCreditProduct():null;
+let desc=type==='stock'?$('creditProductSearch').value.trim():$('creditDescription').value.trim();
+let qty=type==='stock'?Math.max(1,+$('creditQty').value||1):1;
+let manualAmount=Math.max(0,+$('creditAmount').value||0);
+let payload={p_customer_name:customer,p_phone:phone||null,p_credit_type:type,p_product_id:x?.id||null,p_item_description:desc,p_quantity:qty,p_amount_owed:type==='stock'?(x?null:manualAmount):manualAmount,p_due_date:$('creditDueDate').value||null,p_notes:$('creditNotes').value.trim()||null,p_branch:myBranch(),p_user_id:user.id};
+if(type==='stock'&&!desc)return toast('Type a stock product');
+if(type==='stock'&&!x&&manualAmount<=0)return toast('Product is not in the system — enter the amount owed manually');
+if(type==='stock'&&x&&qty>x.qty)return toast('Insufficient stock');
+if(type==='service'&&!payload.p_item_description)return toast('Enter the service or description');
+if(type==='service'&&payload.p_amount_owed<=0)return toast('Enter a valid amount owed');
+let {data,error}=await sb.rpc('record_credit',payload);if(error)return toast(error.message);
+await log('Recorded credit for '+customer+': '+desc);resetCreditForm();await loadAll();toast('Credit recorded successfully');
+}
+async function recordCreditPayment(){
+let id=$('creditPaymentAmount').dataset.creditId;if(!id)return toast('Select an outstanding credit using PAY');
+let amount=+$('creditPaymentAmount').value||0;if(amount<=0)return toast('Enter a valid payment amount');
+let x=cache.credits.find(z=>z.id===id),bal=x?Math.max(0,Number(x.amount_owed)-Number(x.amount_paid)):0;if(amount>bal)return toast('Payment cannot exceed the outstanding balance');
+let {error}=await sb.rpc('record_credit_payment',{p_credit_id:id,p_amount:amount,p_payment_method:$('creditPaymentMethod').value,p_mpesa_reference:$('creditPaymentRef').value.trim()||null,p_user_id:user.id});if(error)return toast(error.message);
+await log('Credit payment: '+money(amount));$('creditPaymentAmount').value='';$('creditPaymentRef').value='';delete $('creditPaymentAmount').dataset.creditId;$('creditSelectedInfo').style.display='none';await loadAll();toast('Credit payment recorded successfully');
+}
+function renderExpenses(){$('expRows').innerHTML=cache.expenses.filter(x=>isAdmin()||x.branch===myBranch()).map(x=>`<tr><td>${esc(x.expense_date)}</td><td>${esc(x.description)}</td><td>${esc(x.branch)}</td><td>${money(x.amount)}</td><td>${esc(x.created_by||'')}</td></tr>`).join('')||'<tr><td colspan="5">No expenses.</td></tr>'}
+function renderPurchases(){$('purRows').innerHTML=cache.purchases.map(x=>`<tr><td>${esc(x.purchase_date)}</td><td>${esc(x.supplier)}</td><td>${esc(x.product_name)}</td><td>${x.quantity}</td><td>${money(x.total)}</td><td>${esc(x.branch)}</td></tr>`).join('')||'<tr><td colspan="6">No purchases.</td></tr>'}
+function renderTransfers(){$('trRows').innerHTML=cache.transfers.map(x=>`<tr><td>${esc(x.transfer_date)}</td><td>${esc(x.product_name)}</td><td>${esc(x.from_branch)}</td><td>${esc(x.to_branch)}</td><td>${x.quantity}</td></tr>`).join('')||'<tr><td colspan="5">No transfers.</td></tr>'}
+let reportCustom=false,calendarDate=new Date();
+function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function parseDate(s){let [y,m,d]=String(s).slice(0,10).split('-').map(Number);return new Date(y,m-1,d)}
+function dateBounds(period){let now=new Date(),end=fmtDate(now),start=end;if(period==='day'){start=end}else if(period==='week'){let d=new Date(now);d.setDate(d.getDate()-6);start=fmtDate(d)}else if(period==='month'){start=fmtDate(new Date(now.getFullYear(),now.getMonth(),1))}else if(period==='year'){start=now.getFullYear()+'-01-01'}return {start,end}}
+function currentReportBounds(){if(reportCustom||$('reportPeriod').value==='custom'){let a=$('reportFrom').value,b=$('reportTo').value;return a&&b&&a<=b?{start:a,end:b}:dateBounds('day')}return dateBounds($('reportPeriod').value)}
+function inBounds(date,b){let s=String(date||'').slice(0,10);return !!s&&s>=b.start&&s<=b.end}
+function applyReportPeriod(){let p=$('reportPeriod').value;if(p==='custom'){reportCustom=true;return renderReports()}let b=dateBounds(p);reportCustom=false;$('reportFrom').value=b.start;$('reportTo').value=b.end;renderReports()}
+function setCustomReportDates(){reportCustom=true;$('reportPeriod').value='custom';if($('reportFrom').value)calendarDate=parseDate($('reportFrom').value);renderReports()}
+function reportRows(b,branch){return cache.sales.filter(x=>inBounds(x.sale_date,b)&&(branch==='ALL'||x.branch===branch)).concat(cache.misc_sales.filter(x=>inBounds(x.sale_date,b)&&(branch==='ALL'||x.branch===branch)).map(x=>({...x,item_name:x.service_name,profit:x.final_total,isMisc:true})))}
+function daySales(ds,branch){return reportRows({start:ds,end:ds},branch)}
+function renderReports(){
+ if(!isAdmin())return;let b=$('reportBranch').value,act=$('reportActivity').value,rb=currentReportBounds();$('reportFrom').value=rb.start;$('reportTo').value=rb.end;
+ let allSales=reportRows(rb,b),sales=cache.sales.filter(x=>inBounds(x.sale_date,rb)&&(b==='ALL'||x.branch===b)),miscSales=cache.misc_sales.filter(x=>inBounds(x.sale_date,rb)&&(b==='ALL'||x.branch===b)),creditPayments=cache.credit_payments.filter(x=>inBounds(x.payment_date,rb)&&(b==='ALL'||x.branch===b)),ex=cache.expenses.filter(x=>inBounds(x.expense_date,rb)&&(b==='ALL'||x.branch===b));
+ let salesRev=allSales.reduce((a,x)=>a+Number(x.final_total),0),debtCollected=creditPayments.reduce((a,x)=>a+Number(x.amount),0),rev=salesRev+debtCollected,cogs=sales.reduce((a,x)=>a+Number(x.cost_total),0),gross=rev-cogs,expenseTotal=ex.reduce((a,x)=>a+Number(x.amount),0);
+ $('rRev').textContent=money(rev);$('rExp').textContent=money(expenseTotal);$('rGross').textContent=money(gross);$('rNet').textContent=money(gross-expenseTotal);
+ let pm={};allSales.forEach(x=>pm[x.payment_method]=(pm[x.payment_method]||0)+Number(x.final_total));creditPayments.forEach(x=>pm[x.payment_method]=(pm[x.payment_method]||0)+Number(x.amount));$('mix').innerHTML=Object.entries(pm).map(x=>`<p><b>${esc(x[0])}</b><span style="float:right">${money(x[1])}</span></p>`).join('')||'No sales in selected period';
+ renderTrajectory(rb,b);renderCalendar(b);renderSimpleBars(rb,b);
+ let title={sales:'Sales / Earnings Report',expenses:'Expense Report',purchases:'Supplier Purchase Report',transfers:'Stock Transfer Report',services:'Services Added Report',credit_payments:'Debt Collections / Credit Payments'}[act];$('activityReportTitle').textContent=title;
+ if(act==='sales'){$('reportHead').innerHTML='<tr><th>Date</th><th>Time</th><th>Branch</th><th>Item</th><th>Qty</th><th>Payment</th><th>Total</th><th>Profit</th><th>Action</th></tr>';$('reportRows').innerHTML=allSales.sort((a,z)=>String(z.created_at||'').localeCompare(String(a.created_at||''))).map(x=>`<tr><td>${esc(x.sale_date)}</td><td>${esc(String(x.created_at||'').slice(11,19))}</td><td>${esc(x.branch)}</td><td>${esc(x.item_name)} ${x.isMisc?"<span class='tag ok'>MISC</span>":''}</td><td>${x.quantity}</td><td>${esc(x.payment_method)}</td><td>${money(x.final_total)}</td><td>${money(x.isMisc?x.final_total:x.profit)}</td><td>${isAdmin()?`<button class="btn danger" onclick="deleteSale('${x.id}',${x.isMisc?'true':'false'})">DELETE</button>`:'—'}</td></tr>`).join('')||'<tr><td colspan="9">No records.</td></tr>'}
+ if(act==='expenses'){$('reportHead').innerHTML='<tr><th>Date</th><th>Branch</th><th>Description</th><th>Amount</th></tr>';$('reportRows').innerHTML=ex.map(x=>`<tr><td>${x.expense_date}</td><td>${x.branch}</td><td>${esc(x.description)}</td><td>${money(x.amount)}</td></tr>`).join('')||'<tr><td colspan="4">No records.</td></tr>'}
+ if(act==='purchases'){let a=cache.purchases.filter(x=>inBounds(x.purchase_date,rb)&&(b==='ALL'||x.branch===b));$('reportHead').innerHTML='<tr><th>Date</th><th>Branch</th><th>Supplier</th><th>Product</th><th>Qty</th><th>Total</th></tr>';$('reportRows').innerHTML=a.map(x=>`<tr><td>${x.purchase_date}</td><td>${x.branch}</td><td>${esc(x.supplier)}</td><td>${esc(x.product_name)}</td><td>${x.quantity}</td><td>${money(x.total)}</td></tr>`).join('')||'<tr><td colspan="6">No records.</td></tr>'}
+ if(act==='transfers'){let a=cache.transfers.filter(x=>inBounds(x.transfer_date,rb)&&(b==='ALL'||x.from_branch===b||x.to_branch===b));$('reportHead').innerHTML='<tr><th>Date</th><th>Product</th><th>From</th><th>To</th><th>Qty</th></tr>';$('reportRows').innerHTML=a.map(x=>`<tr><td>${x.transfer_date}</td><td>${esc(x.product_name)}</td><td>${esc(x.from_branch)}</td><td>${esc(x.to_branch)}</td><td>${x.quantity}</td></tr>`).join('')||'<tr><td colspan="5">No records.</td></tr>'}
+ if(act==='services'){let a=cache.services.filter(x=>inBounds(String(x.created_at||'').slice(0,10),rb)&&(b==='ALL'||x.branch===b));$('reportHead').innerHTML='<tr><th>Date</th><th>Branch</th><th>Service</th><th>Price</th></tr>';$('reportRows').innerHTML=a.map(x=>`<tr><td>${String(x.created_at||'').slice(0,10)}</td><td>${x.branch}</td><td>${esc(x.name)}</td><td>${money(x.price)}</td></tr>`).join('')||'<tr><td colspan="4">No records.</td></tr>'}
+ if(act==='credit_payments'){let a=creditPayments.map(x=>{let c=cache.credits.find(z=>z.id===x.credit_id);return {...x,customer_name:c?.customer_name||'—',item_description:c?.item_description||'—'}});$('reportHead').innerHTML='<tr><th>Date</th><th>Time</th><th>Branch</th><th>Customer</th><th>Credit Item</th><th>Payment Method</th><th>Amount Collected</th><th>Reference</th></tr>';$('reportRows').innerHTML=a.sort((u,v)=>String(v.created_at||'').localeCompare(String(u.created_at||''))).map(x=>`<tr><td>${esc(x.payment_date)}</td><td>${esc(String(x.created_at||'').slice(11,19))}</td><td>${esc(x.branch)}</td><td>${esc(x.customer_name)}</td><td>${esc(x.item_description)}</td><td>${esc(x.payment_method)}</td><td>${money(x.amount)}</td><td>${esc(x.mpesa_reference||'')}</td></tr>`).join('')||'<tr><td colspan="8">No debt collections in selected period.</td></tr>'}
+ $('branchRows').innerHTML=['Branch 1','Branch 2'].map(br=>{let ar=reportRows(rb,br),cp=creditPayments.filter(x=>x.branch===br),e=cache.expenses.filter(x=>inBounds(x.expense_date,rb)&&x.branch===br),salesR=ar.reduce((z,x)=>z+Number(x.final_total),0),debtR=cp.reduce((z,x)=>z+Number(x.amount),0),r=salesR+debtR,g=ar.reduce((z,x)=>z+Number(x.isMisc?x.final_total:x.profit),0)+debtR,ee=e.reduce((z,x)=>z+Number(x.amount),0);return `<tr><td><b>${br}</b></td><td>${money(r)}</td><td>${money(ee)}</td><td>${money(g)}</td><td>${money(g-ee)}</td></tr>`}).join('')}
+function renderSimpleBars(rb,b){let start=parseDate(rb.start),end=parseDate(rb.end),days=Math.round((end-start)/86400000)+1;let step=days>62?'month':'day',arr=[];if(step==='month'){let d=new Date(start.getFullYear(),start.getMonth(),1);while(d<=end){let ms=fmtDate(new Date(d.getFullYear(),d.getMonth(),1)),me=fmtDate(new Date(d.getFullYear(),d.getMonth()+1,0)),v=reportRows({start:ms,end:me},b).reduce((a,x)=>a+Number(x.final_total),0);arr.push([d.toLocaleString('en',{month:'short'}),v]);d.setMonth(d.getMonth()+1)}}else{for(let i=0;i<days;i++){let d=new Date(start);d.setDate(d.getDate()+i);let ds=fmtDate(d),v=daySales(ds,b).reduce((a,x)=>a+Number(x.final_total),0);arr.push([ds.slice(5),v])}}let mx=Math.max(1,...arr.map(x=>x[1]));$('rChart').innerHTML=arr.map(x=>`<div class="bar" style="height:${Math.max(4,x[1]/mx*100)}%" title="${x[0]} ${money(x[1])}"></div>`).join('')}
+function renderTrajectory(rb,b){let start=parseDate(rb.start),end=parseDate(rb.end),days=Math.round((end-start)/86400000)+1;let pts=[];for(let i=0;i<days;i++){let d=new Date(start);d.setDate(d.getDate()+i);let ds=fmtDate(d);pts.push({date:ds,value:daySales(ds,b).reduce((a,x)=>a+Number(x.final_total),0)})}let w=900,h=260,pad=35,max=Math.max(1,...pts.map(x=>x.value)),svg=`<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" preserveAspectRatio="none"><line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="#ccd5dc"/><line x1="${pad}" y1="${pad}" x2="${pad}" y2="${h-pad}" stroke="#ccd5dc"/>`;let poly=pts.map((x,i)=>{let xx=pad+(pts.length===1?0:i*(w-2*pad)/(pts.length-1)),yy=h-pad-(x.value/max)*(h-2*pad);return `${xx},${yy}`}).join(' ');svg+=`<polyline points="${poly}" fill="none" stroke="#175ea8" stroke-width="3"/>`;pts.forEach((x,i)=>{if(pts.length<=31||i%Math.ceil(pts.length/15)===0||i===pts.length-1){let xx=pad+(pts.length===1?0:i*(w-2*pad)/(pts.length-1)),yy=h-pad-(x.value/max)*(h-2*pad);svg+=`<circle cx="${xx}" cy="${yy}" r="3" fill="#175ea8"><title>${x.date}: ${money(x.value)}</title></circle>`}});svg+='</svg>';$('trajectory').innerHTML=svg;$('trajectoryNote').textContent=`${days} day trajectory • Peak daily sales: ${money(max)} • Selected: ${rb.start} to ${rb.end}`}
+function renderCalendar(rb,b){let d=new Date(calendarDate.getFullYear(),calendarDate.getMonth(),1),last=new Date(d.getFullYear(),d.getMonth()+1,0),firstDay=d.getDay();$('calTitle').textContent=d.toLocaleString('en',{month:'long',year:'numeric'});let html=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<div class="calhead">${x}</div>`).join('');for(let i=0;i<firstDay;i++)html+='<div class="calday muted"></div>';for(let day=1;day<=last.getDate();day++){let ds=fmtDate(new Date(d.getFullYear(),d.getMonth(),day)),rows=daySales(ds,b),rev=rows.reduce((a,x)=>a+Number(x.final_total),0);html+=`<div class="calday" onclick="selectCalendarDay('${ds}')"><div class="num">${day}</div><div class="rev">${rev?money(rev):'—'}</div><div class="cnt">${rows.length} sale${rows.length===1?'':'s'}</div></div>`} $('salesCalendar').innerHTML=html}
+function moveCalendar(n){calendarDate.setMonth(calendarDate.getMonth()+n);renderCalendar(currentReportBounds(),$('reportBranch').value)}
+function selectCalendarDay(ds){$('reportPeriod').value='custom';$('reportFrom').value=ds;$('reportTo').value=ds;reportCustom=true;calendarDate=parseDate(ds);renderReports();toast('Showing sales for '+ds)}
+function renderActivity(){$('activityRows').innerHTML=cache.activity.map(x=>`<tr><td>${esc(x.created_at)}</td><td>${esc(x.user_id)}</td><td>${esc(x.branch)}</td><td>${esc(x.action)}</td></tr>`).join('')||'<tr><td colspan="4">No activity.</td></tr>'}
+async function loadUsers(){let {data,error}=await sb.rpc('admin_list_users');if(error){toast('Users list: '+error.message);usersCache=[]}else usersCache=data||[]}
+function renderUsers(){if(!isAdmin())return;$('userRows').innerHTML=usersCache.map(x=>`<tr><td>${esc(x.full_name||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.role)}</td><td>${esc(x.branch)}</td><td><button class="btn light" onclick="editUser('${esc(x.email)}','${esc(x.full_name||'').replace(/'/g,"\\'")}','${x.role}','${x.branch}')">EDIT</button></td></tr>`).join('')||'<tr><td colspan="5">No user profiles found.</td></tr>'}
+function editUser(email,name,role,branch){modal('Assign User','<div class="formgrid"><div><label>Email</label><input id="ue" value="'+esc(email)+'" disabled></div><div><label>Full name</label><input id="un" value="'+esc(name)+'"></div><div><label>Role</label><select id="ur"><option value="staff">Staff</option><option value="admin">Admin</option></select></div><div><label>Branch</label><select id="ub"><option>Branch 1</option><option>Branch 2</option></select></div></div>',async()=>{let {error}=await sb.rpc('admin_set_user_profile',{p_email:email,p_full_name:$('un').value,p_role:$('ur').value,p_branch:$('ub').value});if(error)throw error;await loadUsers();renderUsers()});setTimeout(()=>{$('ur').value=role;$('ub').value=branch},0)}
+function renderAccount(){$('accountInfo').innerHTML='<b>Name:</b> '+esc(profile.full_name||'Not set')+'<br><b>Email:</b> '+esc(user.email)+'<br><b>Role:</b> '+esc(profile.role)+'<br><b>Branch:</b> '+esc(profile.branch)}
+function renderSettings(){$('setName').value=localStorage.getItem('dantech_name')||'Dantech Cyber Solutions';$('setPhone').value=localStorage.getItem('dantech_phone')||'';$('setB1').value=localStorage.getItem('dantech_b1')||'Branch 1';$('setB2').value=localStorage.getItem('dantech_b2')||'Branch 2'}
+async function changePassword(){let a=$('newPassword').value,b=$('confirmPassword').value;if(a.length<8)return toast('Use at least 8 characters');if(a!==b)return toast('Passwords do not match');let {error}=await sb.auth.updateUser({password:a});if(error)return toast(error.message);$('newPassword').value='';$('confirmPassword').value='';toast('Password changed successfully')}
+function saveSettings(){localStorage.setItem('dantech_name',$('setName').value);localStorage.setItem('dantech_phone',$('setPhone').value);localStorage.setItem('dantech_b1',$('setB1').value);localStorage.setItem('dantech_b2',$('setB2').value);toast('Settings saved')}
+function modal(title,body,savefn){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modal').classList.remove('hidden');$('modalSave').onclick=async()=>{try{await savefn();closeModal();await loadAll();toast('Saved successfully')}catch(e){toast(e.message)}}}
+function closeModal(){$('modal').classList.add('hidden')}
+function serviceForm(){let b=isAdmin()?'<select id="mb"><option>Branch 1</option><option>Branch 2</option></select>':'<input id="mb" value="'+esc(myBranch())+'" disabled>';modal('Add New Service','<div class="formgrid"><div><label>Service name</label><input id="mn" placeholder="e.g. KRA PIN application"></div><div><label>Price (KES) — type manually</label><input id="mp" type="number" min="0" step="0.01" placeholder="Enter price"></div><div><label>Branch</label>'+b+'</div></div>',async()=>{if(!$('mn').value.trim()||+$('mp').value<0)throw Error('Enter a valid service name and price');let {error}=await sb.from('services').insert({name:$('mn').value.trim(),price:+$('mp').value,branch:$('mb').value,created_by:user.id});if(error)throw error})}
+function productForm(){if(!isAdmin())return;modal('Add Product','<div class="formgrid three"><div><label>Name</label><input id="pn"></div><div><label>SKU</label><input id="ps"></div><div><label>Cost</label><input id="pc" type="number"></div><div><label>Selling price</label><input id="pp" type="number"></div><div><label>Quantity</label><input id="pq" type="number"></div><div><label>Low-stock threshold</label><input id="pt" type="number" value="5"></div><div><label>Branch</label><select id="pb"><option>Branch 1</option><option>Branch 2</option></select></div></div>',async()=>{let {error}=await sb.from('products').insert({name:$('pn').value.trim(),sku:$('ps').value.trim(),cost_price:+$('pc').value,selling_price:+$('pp').value,qty:+$('pq').value,low_stock_threshold:+$('pt').value,branch:$('pb').value});if(error)throw error})}
+function expenseForm(){let b=isAdmin()?'<select id="eb"><option>Branch 1</option><option>Branch 2</option></select>':'<input id="eb" value="'+esc(myBranch())+'" disabled>';modal('Record Expense','<div class="formgrid"><div><label>Description</label><input id="ed" placeholder="e.g. Transport, electricity, stationery"></div><div><label>Amount (KES)</label><input id="ea" type="number" min="0"></div><div><label>Branch</label>'+b+'</div></div>',async()=>{if(!$('ed').value.trim()||+$('ea').value<=0)throw Error('Enter a description and a positive amount');let {error}=await sb.from('expenses').insert({description:$('ed').value.trim(),amount:+$('ea').value,branch:$('eb').value,expense_date:today(),created_by:user.id});if(error)throw error})}
+function purchaseForm(){modal('Record Supplier Purchase','<div class="formgrid"><div><label>Supplier</label><input id="psu"></div><div><label>Product</label><select id="ppr">'+cache.products.map(x=>`<option value="${x.id}">${esc(x.name)} — ${x.branch}</option>`).join('')+'</select></div><div><label>Quantity</label><input id="pqu" type="number" value="1"></div><div><label>Unit cost</label><input id="pco" type="number"></div></div>',async()=>{let p=cache.products.find(x=>x.id===$('ppr').value),q=+$('pqu').value,c=+$('pco').value||p.cost_price;let {error}=await sb.rpc('record_purchase',{p_product_id:p.id,p_supplier:$('psu').value,p_quantity:q,p_unit_cost:c,p_branch:p.branch});if(error)throw error})}
+function transferForm(){modal('Transfer Stock','<div class="formgrid"><div><label>Product</label><select id="tp">'+cache.products.map(x=>`<option value="${x.id}">${esc(x.name)} — ${x.branch}</option>`).join('')+'</select></div><div><label>Quantity</label><input id="tq" type="number" value="1"></div><div><label>Destination</label><select id="tb"><option>Branch 1</option><option>Branch 2</option></select></div></div>',async()=>{let p=cache.products.find(x=>x.id===$('tp').value),q=+$('tq').value,to=$('tb').value;if(p.branch===to)throw Error('Destination must be another branch');let {error}=await sb.rpc('transfer_stock',{p_product_id:p.id,p_quantity:q,p_to_branch:to});if(error)throw error})}
+async function deleteProduct(id,name){if(!isAdmin())return;if(!confirm('Delete "'+name+'" from inventory? Historical sales will be kept, but this product will be removed from current inventory.'))return;let {error}=await sb.rpc('delete_product',{p_product_id:id});if(error)return toast(error.message);await log('Deleted product: '+name);await loadAll();toast('Product deleted')}
+
+async function deleteSale(id,isMisc=false){if(!isAdmin())return;if(!confirm('DELETE this sale? This cannot be undone. Product stock will be restored where applicable.'))return;let fn=isMisc?'delete_misc_sale':'delete_sale';let {error}=await sb.rpc(fn,isMisc?{p_sale_id:id}:{p_sale_id:id});if(error)return toast(error.message);await log('Deleted sale: '+id);await loadAll();toast('Sale deleted successfully')}
+async function deleteService(id,name){if(!isAdmin())return;if(!confirm('Delete service "'+name+'"? Historical sales will be kept.'))return;let {error}=await sb.rpc('delete_service',{p_service_id:id});if(error)return toast(error.message);await log('Deleted service: '+name);await loadAll();toast('Service deleted successfully')}
+function printReport(){if(!isAdmin())return;let old=document.body.innerHTML,content=$('reports').innerHTML;let w=window.open('','_blank');if(!w)return;w.document.write('<html><head><title>Dantech Report</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:8px}h2,h3{margin-bottom:8px}</style></head><body><h2>Dantech Cyber Solutions</h2>'+content+'</body></html>');w.document.close();w.focus();setTimeout(()=>w.print(),300)}
+if(configured())sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+window.addEventListener('load',()=>{if($('reportFrom')){let b=dateBounds('day');$('reportFrom').value=b.start;$('reportTo').value=b.end;calendarDate=new Date()}});
+</script>
+</body></html>
